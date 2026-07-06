@@ -51,16 +51,17 @@ import {
 
 // 🔧 ZAMENJAJ TO S SVOJO KONFIGURACIJO
 const firebaseConfig = {
-  apiKey: "TVOJ_API_KEY",
-  authDomain: "TVOJ_PROJECT.firebaseapp.com",
-  projectId: "TVOJ_PROJECT_ID",
-  storageBucket: "TVOJ_PROJECT.appspot.com",
-  messagingSenderId: "TVOJ_SENDER_ID",
-  appId: "TVOJ_APP_ID",
+  apiKey: "AIzaSyAgcavA_x8iy2FvU88SnFpwh71wBBSnTgU",
+  authDomain: "calldesk-87366.firebaseapp.com",
+  projectId: "calldesk-87366",
+  storageBucket: "calldesk-87366.firebasestorage.app",
+  messagingSenderId: "568530925792",
+  appId: "1:568530925792:web:adc0948eb7f5815c413885",
+  measurementId: "G-ZZP0W5M289"
 };
 
 // Seznam admin e-poštnih naslovov (poleg tega lahko v users/{uid}.role = "admin").
-export const ADMIN_EMAILS = ["admin@primer.si"];
+export const ADMIN_EMAILS = ["jakob.gabor@gmail.com"];
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
