@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anketa · CallDesk</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-page="survey">
+  <div class="app">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="scrim" id="scrim"></div>
+
+    <main class="content">
+      <div class="topbar">
+        <button class="menu-btn" id="menuBtn" aria-label="Meni">☰</button>
+        <div>
+          <h1 id="surveyTitle">Anketa</h1>
+          <p id="surveySub">Nalagam podatke podjetja…</p>
+        </div>
+        <div class="spacer"></div>
+        <a class="btn ghost" href="coldcalls.html">← Nazaj</a>
+      </div>
+
+      <div class="grid cols-2" style="align-items:start; gap:22px">
+        <!-- Obrazec -->
+        <div class="card pad">
+          <form id="surveyForm">
+            <div class="field">
+              <label for="fName">Ime <span class="hint">(neobvezno)</span></label>
+              <input type="text" id="fName" placeholder="Ime kontaktne osebe" />
+            </div>
+
+            <div class="field">
+              <label for="fPhone">Telefonska številka</label>
+              <input type="tel" id="fPhone" placeholder="+386 40 123 456" />
+            </div>
+
+            <div class="field">
+              <label>Ali se je podjetje javilo?</label>
+              <div class="seg">
+                <input type="radio" name="answered" id="ans-da" value="Da"><label for="ans-da">Da</label>
+                <input type="radio" name="answered" id="ans-ne" value="Ne"><label for="ans-ne">Ne</label>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Ali jih zanima ponudba?</label>
+              <div class="seg">
+                <input type="radio" name="interested" id="int-da" value="Da"><label for="int-da">Da</label>
+                <input type="radio" name="interested" id="int-mogoce" value="Mogoče"><label for="int-mogoce">Mogoče</label>
+                <input type="radio" name="interested" id="int-ne" value="Ne"><label for="int-ne">Ne</label>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="fComment">Komentar</label>
+              <textarea id="fComment" placeholder="Zapiši opombe o klicu…"></textarea>
+            </div>
+
+            <div class="field">
+              <label for="fStatus">Status</label>
+              <select id="fStatus">
+                <option value="Poklicano">Poklicano</option>
+                <option value="Ni odgovora">Ni odgovora</option>
+                <option value="Pokliči kasneje">Pokliči kasneje</option>
+                <option value="Zainteresiran">Zainteresiran</option>
+                <option value="Ni zainteresiran">Ni zainteresiran</option>
+              </select>
+            </div>
+
+            <p class="hint" style="margin-bottom:14px">📅 Datum in ura se shranita samodejno ob shranjevanju.</p>
+            <button type="submit" class="btn primary" id="saveSurveyBtn" style="width:100%">Shrani odgovor</button>
+            <div class="form-msg" id="surveyMsg"></div>
+          </form>
+        </div>
+
+        <!-- Zgodovina odgovorov (real-time) -->
+        <div class="card pad">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px">
+            <h2 style="font-size:1.1rem">Zadnji odgovori</h2>
+            <span class="count-pill" id="respCount">0</span>
+          </div>
+          <p class="hint" style="margin-bottom:14px">Posodablja se v realnem času, ko kdorkoli odda odgovor.</p>
+          <div id="respList"><div class="center-load"><span class="loading"></span></div></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast-box" id="toastBox"></div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prijava · CallDesk</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-page="login">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="brand">
+        <span class="logo">C</span>
+        <span>CallDesk<small>Cold calling nadzorna plošča</small></span>
+      </div>
+      <p class="sub" id="authSub">Prijavi se in nadaljuj s klici.</p>
+
+      <div class="auth-tabs">
+        <button type="button" id="tabLogin" class="on">Prijava</button>
+        <button type="button" id="tabRegister">Registracija</button>
+      </div>
+
+      <form id="authForm" autocomplete="on">
+        <div class="field">
+          <label for="email">E-pošta</label>
+          <input type="email" id="email" placeholder="ime@primer.si" required />
+        </div>
+        <div class="field">
+          <label for="password">Geslo</label>
+          <input type="password" id="password" placeholder="••••••••" minlength="6" required />
+        </div>
+        <button type="submit" class="btn primary" id="authBtn">Prijava</button>
+        <div class="form-msg" id="authMsg"></div>
+      </form>
+
+      <div class="auth-alt">
+        ali <button type="button" id="guestBtn">nadaljuj kot gost</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-box" id="toastBox"></div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

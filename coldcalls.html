@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cold Calli · CallDesk</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-page="coldcalls">
+  <div class="app">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="scrim" id="scrim"></div>
+
+    <main class="content">
+      <div class="topbar">
+        <button class="menu-btn" id="menuBtn" aria-label="Meni">☰</button>
+        <div>
+          <h1>📞 Cold Calli</h1>
+          <p>Podjetja za klicanje. Odpri anketo in beleži odgovore.</p>
+        </div>
+        <div class="spacer"></div>
+        <button class="btn primary" id="addCompanyBtn">+ Dodaj podjetje</button>
+      </div>
+
+      <div class="toolbar">
+        <div class="search"><input type="text" id="companySearch" placeholder="Išči podjetje, dejavnost, kraj…" /></div>
+        <select id="companyStatusFilter">
+          <option value="">Vsi statusi</option>
+          <option value="Poklicano">Poklicano</option>
+          <option value="Ni odgovora">Ni odgovora</option>
+          <option value="Pokliči kasneje">Pokliči kasneje</option>
+          <option value="Zainteresiran">Zainteresiran</option>
+          <option value="Ni zainteresiran">Ni zainteresiran</option>
+          <option value="Ni klicano">Ni klicano</option>
+        </select>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Podjetje</th>
+              <th>Vrsta dejavnosti</th>
+              <th>Kontakt</th>
+              <th>Kraj</th>
+              <th>Št. odgovorov</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="companyRows">
+            <tr><td colspan="7"><div class="center-load"><span class="loading"></span></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal: dodaj podjetje -->
+  <div class="modal-scrim" id="companyModal">
+    <div class="modal">
+      <h2>Dodaj podjetje</h2>
+      <div class="field"><label>Ime podjetja</label><input id="cName" placeholder="Podjetje d.o.o." /></div>
+      <div class="field"><label>Vrsta dejavnosti</label><input id="cActivity" placeholder="Gostinstvo, IT, trgovina…" /></div>
+      <div class="field"><label>Kontakt</label><input id="cContact" placeholder="Telefon ali e-pošta" /></div>
+      <div class="field"><label>Kraj</label><input id="cCity" placeholder="Ljubljana" /></div>
+      <div class="modal-foot">
+        <button class="btn ghost" data-close-modal>Prekliči</button>
+        <button class="btn primary" id="saveCompanyBtn">Shrani</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-box" id="toastBox"></div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

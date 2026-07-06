@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Beležke · CallDesk</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-page="notes">
+  <div class="app">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="scrim" id="scrim"></div>
+
+    <main class="content">
+      <div class="topbar">
+        <button class="menu-btn" id="menuBtn" aria-label="Meni">☰</button>
+        <div>
+          <h1>📝 Beležke</h1>
+          <p>Skupne beležke — samodejno shranjevanje, sinhronizacija med uporabniki.</p>
+        </div>
+        <div class="spacer"></div>
+        <button class="btn primary" id="addNoteBtn">+ Nova beležka</button>
+      </div>
+
+      <div class="notes-grid" id="notesGrid">
+        <div class="center-load"><span class="loading"></span></div>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast-box" id="toastBox"></div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

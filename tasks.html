@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Naloge · CallDesk</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-page="tasks">
+  <div class="app">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="scrim" id="scrim"></div>
+
+    <main class="content">
+      <div class="topbar">
+        <button class="menu-btn" id="menuBtn" aria-label="Meni">☰</button>
+        <div>
+          <h1>✅ Naloge</h1>
+          <p>Kanban tabla — povleci kartice med stolpci. Vse se shrani v Firebase.</p>
+        </div>
+      </div>
+
+      <div class="kanban" id="kanban">
+        <section class="kanban-col col-todo" data-col="todo">
+          <div class="col-head">
+            <h3><span class="tag"></span> Za narediti</h3>
+            <span class="cnt" data-cnt="todo">0</span>
+          </div>
+          <div class="dropzone" data-drop="todo"></div>
+          <button class="add-task" data-add="todo">+ Dodaj kartico</button>
+        </section>
+
+        <section class="kanban-col col-doing" data-col="doing">
+          <div class="col-head">
+            <h3><span class="tag"></span> V delu</h3>
+            <span class="cnt" data-cnt="doing">0</span>
+          </div>
+          <div class="dropzone" data-drop="doing"></div>
+          <button class="add-task" data-add="doing">+ Dodaj kartico</button>
+        </section>
+
+        <section class="kanban-col col-done" data-col="done">
+          <div class="col-head">
+            <h3><span class="tag"></span> Končano</h3>
+            <span class="cnt" data-cnt="done">0</span>
+          </div>
+          <div class="dropzone" data-drop="done"></div>
+          <button class="add-task" data-add="done">+ Dodaj kartico</button>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast-box" id="toastBox"></div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

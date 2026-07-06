@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard · CallDesk</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-page="dashboard">
+  <div class="app">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="scrim" id="scrim"></div>
+
+    <main class="content">
+      <div class="topbar">
+        <button class="menu-btn" id="menuBtn" aria-label="Meni">☰</button>
+        <div>
+          <h1>Pozdravljen 👋</h1>
+          <p>Izberi modul za začetek dela.</p>
+        </div>
+      </div>
+
+      <!-- Hitri pregled -->
+      <div class="grid cols-4 stagger" id="quickStats" style="margin-bottom:26px">
+        <div class="card stat"><div class="label">Podjetja</div><div class="stat-num" id="sCompanies">–</div></div>
+        <div class="card stat"><div class="label">Klici skupaj</div><div class="stat-num accent" id="sCalls">–</div></div>
+        <div class="card stat"><div class="label">Zainteresirani</div><div class="stat-num" id="sInterested">–</div></div>
+        <div class="card stat"><div class="label">Odprte naloge</div><div class="stat-num" id="sTasks">–</div></div>
+      </div>
+
+      <!-- Glavne kartice -->
+      <div class="grid cols-3 stagger">
+        <a class="tile" href="coldcalls.html">
+          <div class="emoji">📞</div>
+          <h3>Cold Calli</h3>
+          <p>Seznam podjetij, ankete in sledenje odgovorom v realnem času.</p>
+          <span class="go">Odpri</span>
+        </a>
+        <a class="tile" href="notes.html">
+          <div class="emoji">📝</div>
+          <h3>Beležke</h3>
+          <p>Skupne beležke, ki se samodejno shranjujejo med uporabniki.</p>
+          <span class="go">Odpri</span>
+        </a>
+        <a class="tile" href="tasks.html">
+          <div class="emoji">✅</div>
+          <h3>Naloge</h3>
+          <p>Kanban tabla z drag &amp; drop: Za narediti · V delu · Končano.</p>
+          <span class="go">Odpri</span>
+        </a>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast-box" id="toastBox"></div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
