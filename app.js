@@ -14,6 +14,44 @@ import {
 } from "./firebase.js";
 
 /* =========================================================================
+   TEMA (svetla / temna) — izbira se shrani v brskalnik
+   ========================================================================= */
+const THEME_KEY = "calldesk-theme";
+
+function getTheme() {
+  try { return localStorage.getItem(THEME_KEY) || "dark"; }
+  catch { return "dark"; }
+}
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  try { localStorage.setItem(THEME_KEY, theme); } catch { /* ignore */ }
+}
+// Uporabi shranjeno temo takoj ob nalaganju (prepreči utripanje).
+applyTheme(getTheme());
+
+// Poveže gumb (v shellu ali plavajočega): nastavi ikono in preklop ob kliku.
+function attachThemeToggle(btn) {
+  if (!btn) return;
+  const setIcon = () => { btn.textContent = getTheme() === "light" ? "🌙" : "☀️"; };
+  setIcon();
+  btn.addEventListener("click", () => {
+    applyTheme(getTheme() === "light" ? "dark" : "light");
+    setIcon();
+  });
+}
+// Plavajoči gumb (za strani brez stranske vrstice, npr. prijava).
+function addFloatingThemeToggle() {
+  if (document.getElementById("themeToggle")) return;
+  const b = document.createElement("button");
+  b.id = "themeToggle";
+  b.type = "button";
+  b.className = "theme-toggle";
+  b.setAttribute("aria-label", "Preklopi temo");
+  document.body.appendChild(b);
+  attachThemeToggle(b);
+}
+
+/* =========================================================================
    POMOŽNE FUNKCIJE (izvožene tudi za admin.js)
    ========================================================================= */
 export function toast(msg, type = "ok") {
@@ -122,8 +160,11 @@ function renderShell(page, user, info) {
         <b>${escapeHtml(info.name)}</b>
         <span>${info.isAdmin ? "Administrator" : (user.isAnonymous ? "Gost" : "Uporabnik")}</span>
       </div>
+      <button class="btn sm ghost theme-mini" id="themeBtn" title="Preklopi temo">☀️</button>
       <button class="btn sm ghost" id="logoutBtn" title="Odjava">⎋</button>
     </div>`;
+
+  attachThemeToggle(document.getElementById("themeBtn"));
 
   document.getElementById("logoutBtn")?.addEventListener("click", async () => {
     await signOut(auth);
@@ -172,6 +213,8 @@ function bindModal(id) {
    STRAN: PRIJAVA
    ========================================================================= */
 function initLogin() {
+  addFloatingThemeToggle();
+
   // Če je uporabnik že prijavljen → naravnost na dashboard.
   onAuthStateChanged(auth, (user) => { if (user) location.replace("dashboard.html"); });
 
