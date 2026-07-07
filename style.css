@@ -17,10 +17,10 @@
   --muted:     #8a95a6;
   --muted-2:   #5f6b7c;
 
-  --accent:      #2fe38a;
-  --accent-2:    #17c46f;
-  --accent-soft: rgba(47, 227, 138, 0.14);
-  --accent-glow: rgba(47, 227, 138, 0.35);
+  --accent:      #3d8bff;
+  --accent-2:    #2563eb;
+  --accent-soft: rgba(61, 139, 255, 0.14);
+  --accent-glow: rgba(61, 139, 255, 0.35);
 
   --danger:  #ff5d6c;
   --warn:    #ffc857;
@@ -45,8 +45,8 @@ body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   color: var(--text);
   background:
-    radial-gradient(900px 500px at 12% -8%, rgba(47, 227, 138, 0.10), transparent 60%),
-    radial-gradient(760px 480px at 110% 0%, rgba(88, 166, 255, 0.07), transparent 55%),
+    radial-gradient(900px 500px at 12% -8%, rgba(61, 139, 255, 0.12), transparent 60%),
+    radial-gradient(760px 480px at 110% 0%, rgba(120, 90, 255, 0.06), transparent 55%),
     var(--bg);
   background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
@@ -97,7 +97,7 @@ a { color: inherit; text-decoration: none; }
   width: 34px; height: 34px; border-radius: 10px;
   display: grid; place-items: center;
   background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  color: #04140b; font-weight: 800;
+  color: #fff; font-weight: 800;
   box-shadow: 0 6px 20px var(--accent-glow);
 }
 .brand small { color: var(--muted); font-weight: 500; font-size: 0.7rem; display: block; }
@@ -255,7 +255,7 @@ td .sub { color: var(--muted); font-size: 0.8rem; }
 .badge.s-poklicano       { color: var(--info);   border-color: rgba(88,166,255,0.35);  background: rgba(88,166,255,0.10); }
 .badge.s-ni-odgovora     { color: var(--muted);  }
 .badge.s-poklici-kasneje { color: var(--warn);   border-color: rgba(255,200,87,0.35);  background: rgba(255,200,87,0.10); }
-.badge.s-zainteresiran   { color: var(--accent); border-color: rgba(47,227,138,0.35);  background: var(--accent-soft); }
+.badge.s-zainteresiran   { color: #2ec07a; border-color: rgba(46,192,122,0.4);  background: rgba(46,192,122,0.12); }
 .badge.s-ni-zainteresiran{ color: var(--danger); border-color: rgba(255,93,108,0.35);  background: rgba(255,93,108,0.10); }
 
 .count-pill {
@@ -279,7 +279,7 @@ td .sub { color: var(--muted); font-size: 0.8rem; }
 .btn:active { transform: translateY(0); }
 .btn.primary {
   background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  color: #04140b; border-color: transparent;
+  color: #fff; border-color: transparent;
   box-shadow: 0 8px 24px var(--accent-glow);
 }
 .btn.primary:hover { box-shadow: 0 12px 30px var(--accent-glow); }
@@ -503,3 +503,71 @@ select option { background: var(--bg-2); color: var(--text); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* =========================================================================
+   SVETLA TEMA  (aktivira se z data-theme="light" na <html>)
+   ========================================================================= */
+:root[data-theme="light"] {
+  --bg:        #eef1f7;
+  --bg-2:      #ffffff;
+  --card:      rgba(255, 255, 255, 0.72);
+  --card-2:    rgba(15, 23, 42, 0.05);
+  --border:    rgba(15, 23, 42, 0.10);
+  --border-2:  rgba(15, 23, 42, 0.16);
+  --text:      #0f172a;
+  --muted:     #5b6472;
+  --muted-2:   #98a2b3;
+
+  --accent:      #2563eb;
+  --accent-2:    #1d4ed8;
+  --accent-soft: rgba(37, 99, 235, 0.10);
+  --accent-glow: rgba(37, 99, 235, 0.22);
+
+  --shadow: 0 18px 44px rgba(15, 23, 42, 0.12);
+}
+
+[data-theme="light"] body {
+  background:
+    radial-gradient(900px 500px at 12% -8%, rgba(37, 99, 235, 0.10), transparent 60%),
+    radial-gradient(760px 480px at 110% 0%, rgba(120, 90, 255, 0.06), transparent 55%),
+    var(--bg);
+}
+[data-theme="light"] .sidebar        { background: rgba(255, 255, 255, 0.82); }
+[data-theme="light"] .card,
+[data-theme="light"] .tile,
+[data-theme="light"] .note,
+[data-theme="light"] .kanban-col,
+[data-theme="light"] .table-wrap,
+[data-theme="light"] .auth-card       { background: rgba(255, 255, 255, 0.75); }
+[data-theme="light"] thead th         { background: rgba(244, 246, 251, 0.95); }
+[data-theme="light"] tbody tr:hover   { background: rgba(15, 23, 42, 0.035); }
+[data-theme="light"] .kanban-col .task { background: rgba(255, 255, 255, 0.9); }
+[data-theme="light"] input,
+[data-theme="light"] select,
+[data-theme="light"] textarea         { background: rgba(15, 23, 42, 0.035); }
+[data-theme="light"] input:focus,
+[data-theme="light"] select:focus,
+[data-theme="light"] textarea:focus   { background: rgba(37, 99, 235, 0.06); }
+[data-theme="light"] .seg label,
+[data-theme="light"] .auth-tabs,
+[data-theme="light"] .nav a:hover     { background: rgba(15, 23, 42, 0.04); }
+[data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(15, 23, 42, 0.18); }
+
+/* =========================================================================
+   GUMB ZA PREKLOP TEME
+   ========================================================================= */
+.theme-toggle {
+  position: fixed; top: 16px; right: 16px; z-index: 90;
+  width: 42px; height: 42px; border-radius: 12px;
+  display: grid; place-items: center; cursor: pointer;
+  font-size: 1.1rem; line-height: 1;
+  background: var(--card); color: var(--text);
+  border: 1px solid var(--border);
+  backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
+  box-shadow: var(--shadow);
+  transition: transform 0.2s var(--ease), border-color 0.2s;
+}
+.theme-toggle:hover { transform: translateY(-2px); border-color: var(--border-2); }
+
+/* v stranski vrstici je gumb za temo majhen (poleg odjave) */
+.side-user .theme-mini { font-size: 0.95rem; }
