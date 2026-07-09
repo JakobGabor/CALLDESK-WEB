@@ -497,15 +497,104 @@ function initSurvey(user, info) {
 
 /* =========================================================================
    STRAN: BELEŽKE (skupne, samodejno shranjevanje, real-time)
+   Kartice so predogled — klik odpre veliko okno za branje in urejanje.
    ========================================================================= */
 function initNotes(user, info) {
   const grid = document.getElementById("notesGrid");
-  const rendered = new Map(); // id -> { el, titleEl, textEl, stateEl }
-  const timers = new Map();   // id -> debounce timer
+  let notes = [];        // vse beležke
+  let openId = null;     // id trenutno odprte beležke
+  let saveTimer = null;
 
+  /* ---- Veliko okno (ustvari se enkrat) ---- */
+  const scrim = document.createElement("div");
+  scrim.className = "modal-scrim note-scrim";
+  scrim.innerHTML = `
+    <div class="modal note-modal">
+      <div class="note-modal-head">
+        <input class="note-modal-title" placeholder="Naslov beležke" />
+        <button class="note-modal-close" title="Zapri">✕</button>
+      </div>
+      <textarea class="note-modal-text" placeholder="Piši tukaj…"></textarea>
+      <div class="note-modal-foot">
+        <span class="save-state saved"><span class="dot"></span>shranjeno</span>
+        <span style="display:flex; gap:10px">
+          <button class="btn sm danger note-modal-del">🗑 Izbriši</button>
+          <button class="btn sm primary note-modal-done">Končano</button>
+        </span>
+      </div>
+    </div>`;
+  document.body.appendChild(scrim);
+
+  const mTitle = scrim.querySelector(".note-modal-title");
+  const mText  = scrim.querySelector(".note-modal-text");
+  const mState = scrim.querySelector(".save-state");
+
+  const closeModal = () => {
+    scrim.classList.remove("show");
+    openId = null;
+  };
+  scrim.addEventListener("click", e => { if (e.target === scrim) closeModal(); });
+  scrim.querySelector(".note-modal-close").addEventListener("click", closeModal);
+  scrim.querySelector(".note-modal-done").addEventListener("click", closeModal);
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape" && openId) closeModal();
+  });
+
+  scrim.querySelector(".note-modal-del").addEventListener("click", async () => {
+    if (!openId) return;
+    if (!confirm("Izbrišem to beležko?")) return;
+    const id = openId;
+    closeModal();
+    try { await deleteDoc(doc(db, "notes", id)); toast("Beležka izbrisana."); }
+    catch { toast("Napaka pri brisanju.", "err"); }
+  });
+
+  function openModal(id) {
+    const n = notes.find(x => x.id === id);
+    if (!n) return;
+    openId = id;
+    mTitle.value = n.title || "";
+    mText.value = n.text || "";
+    mState.className = "save-state saved";
+    mState.lastChild.textContent = "shranjeno";
+    scrim.classList.add("show");
+    mText.focus();
+  }
+
+  /* ---- Samodejno shranjevanje iz velikega okna ---- */
+  const saveOpen = () => {
+    if (!openId) return;
+    const id = openId;
+    mState.className = "save-state saving";
+    mState.lastChild.textContent = "shranjujem…";
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(async () => {
+      try {
+        await updateDoc(doc(db, "notes", id), {
+          title: mTitle.value,
+          text: mText.value,
+          updatedBy: info.name,
+          updatedAt: serverTimestamp(),
+        });
+        if (openId === id) {
+          mState.className = "save-state saved";
+          mState.lastChild.textContent = "shranjeno";
+        }
+      } catch {
+        if (openId === id) {
+          mState.className = "save-state";
+          mState.lastChild.textContent = "napaka";
+        }
+      }
+    }, 600);
+  };
+  mTitle.addEventListener("input", saveOpen);
+  mText.addEventListener("input", saveOpen);
+
+  /* ---- Nova beležka ---- */
   document.getElementById("addNoteBtn").addEventListener("click", async () => {
     try {
-      await addDoc(collection(db, "notes"), {
+      const ref = await addDoc(collection(db, "notes"), {
         title: "Nova beležka",
         text: "",
         updatedBy: info.name,
@@ -513,81 +602,54 @@ function initNotes(user, info) {
         updatedAt: serverTimestamp(),
       });
       toast("Beležka dodana.");
+      setTimeout(() => openModal(ref.id), 350); // odpri jo takoj
     } catch { toast("Napaka pri dodajanju.", "err"); }
   });
 
+  /* ---- Real-time seznam ---- */
   onSnapshot(collection(db, "notes"), (snap) => {
-    const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    items.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+    notes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    notes.sort((a, b) => (b.updatedAt?.seconds || 0) - (a.updatedAt?.seconds || 0));
 
-    // odstrani izbrisane
-    const ids = new Set(items.map(i => i.id));
-    for (const [id, r] of rendered) if (!ids.has(id)) { r.el.remove(); rendered.delete(id); }
+    // če je odprta beležka izbrisana drugje, zapri okno
+    if (openId && !notes.some(n => n.id === openId)) closeModal();
 
-    if (!items.length && !grid.querySelector(".note")) {
-      grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="big">📝</div>Ni beležk. Ustvari prvo z gumbom zgoraj.</div>`;
-      return;
-    }
-    // odstrani prazno stanje, če obstaja
-    grid.querySelector(".empty")?.remove();
-
-    for (const it of items) {
-      if (rendered.has(it.id)) {
-        const r = rendered.get(it.id);
-        // ne prepiši polja, ki ga uporabnik trenutno ureja
-        if (document.activeElement !== r.titleEl) r.titleEl.value = it.title || "";
-        if (document.activeElement !== r.textEl) r.textEl.value = it.text || "";
-        r.metaEl.textContent = `${formatTs(it.updatedAt)} · ${it.updatedBy || ""}`;
-      } else {
-        grid.appendChild(makeNote(it));
+    // če drug uporabnik ureja isto beležko, osveži polja (ne med tipkanjem)
+    if (openId) {
+      const n = notes.find(x => x.id === openId);
+      if (n) {
+        if (document.activeElement !== mTitle) mTitle.value = n.title || "";
+        if (document.activeElement !== mText)  mText.value  = n.text  || "";
       }
     }
+    renderGrid();
   }, () => {
     grid.innerHTML = `<div class="empty" style="grid-column:1/-1">Napaka pri nalaganju beležk.</div>`;
   });
 
-  function makeNote(it) {
-    const el = document.createElement("div");
-    el.className = "note";
-    el.innerHTML = `
-      <input class="note-title" value="${escapeHtml(it.title || "")}" placeholder="Naslov" />
-      <textarea placeholder="Piši tukaj…">${escapeHtml(it.text || "")}</textarea>
-      <div class="note-foot">
-        <span class="meta">${formatTs(it.updatedAt)} · ${escapeHtml(it.updatedBy || "")}</span>
-        <span style="display:flex; align-items:center; gap:10px">
-          <span class="save-state saved"><span class="dot"></span>shranjeno</span>
-          <button class="del" title="Izbriši">🗑</button>
-        </span>
-      </div>`;
-    const titleEl = el.querySelector(".note-title");
-    const textEl = el.querySelector("textarea");
-    const stateEl = el.querySelector(".save-state");
-    const metaEl = el.querySelector(".meta");
+  /* ---- Kartice = samo predogled ---- */
+  function renderGrid() {
+    if (!notes.length) {
+      grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="big">📝</div>Ni beležk. Ustvari prvo z gumbom zgoraj.</div>`;
+      return;
+    }
+    grid.innerHTML = notes.map(n => `
+      <article class="note note-card" data-open="${n.id}" tabindex="0" role="button">
+        <h3 class="note-card-title">${escapeHtml(n.title) || "Brez naslova"}</h3>
+        <p class="note-card-text">${escapeHtml(n.text) || "Prazna beležka — klikni za urejanje."}</p>
+        <div class="note-foot">
+          <span>${formatTs(n.updatedAt)} · ${escapeHtml(n.updatedBy || "")}</span>
+          <span class="note-card-open">Odpri →</span>
+        </div>
+      </article>`).join("");
 
-    const save = () => {
-      stateEl.className = "save-state saving"; stateEl.lastChild.textContent = "shranjujem…";
-      clearTimeout(timers.get(it.id));
-      timers.set(it.id, setTimeout(async () => {
-        try {
-          await updateDoc(doc(db, "notes", it.id), {
-            title: titleEl.value, text: textEl.value,
-            updatedBy: info.name, updatedAt: serverTimestamp(),
-          });
-          stateEl.className = "save-state saved"; stateEl.lastChild.textContent = "shranjeno";
-        } catch { stateEl.className = "save-state"; stateEl.lastChild.textContent = "napaka"; }
-      }, 600));
-    };
-    titleEl.addEventListener("input", save);
-    textEl.addEventListener("input", save);
-
-    el.querySelector(".del").addEventListener("click", async () => {
-      if (!confirm("Izbrišem to beležko?")) return;
-      try { await deleteDoc(doc(db, "notes", it.id)); toast("Beležka izbrisana."); }
-      catch { toast("Napaka pri brisanju.", "err"); }
+    grid.querySelectorAll("[data-open]").forEach(card => {
+      const go = () => openModal(card.dataset.open);
+      card.addEventListener("click", go);
+      card.addEventListener("keydown", e => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); }
+      });
     });
-
-    rendered.set(it.id, { el, titleEl, textEl, stateEl, metaEl });
-    return el;
   }
 }
 

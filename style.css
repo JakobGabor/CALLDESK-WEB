@@ -571,3 +571,58 @@ select option { background: var(--bg-2); color: var(--text); }
 
 /* v stranski vrstici je gumb za temo majhen (poleg odjave) */
 .side-user .theme-mini { font-size: 0.95rem; }
+
+/* =========================================================================
+   BELEŽKE — kartica kot predogled + veliko okno za branje/urejanje
+   ========================================================================= */
+.note-card { cursor: pointer; transition: transform 0.2s var(--ease), border-color 0.2s, box-shadow 0.2s; }
+.note-card:hover { transform: translateY(-4px); border-color: var(--border-2); box-shadow: 0 20px 44px rgba(0,0,0,0.4); }
+.note-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.note-card-title {
+  font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 1.02rem;
+  margin-bottom: 8px; word-break: break-word;
+}
+.note-card-text {
+  flex: 1; color: var(--muted); font-size: 0.88rem; line-height: 1.55;
+  overflow: hidden; white-space: pre-wrap;
+  display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical;
+}
+.note-card .note-foot { margin-top: 12px; }
+.note-card-open { color: var(--accent); font-weight: 600; }
+
+/* Veliko okno */
+.note-scrim .note-modal {
+  max-width: 720px; width: 100%;
+  height: min(78vh, 760px); max-height: 88vh;
+  display: flex; flex-direction: column; gap: 14px;
+  padding: 22px 24px; overflow: hidden;
+}
+.note-modal-head { display: flex; align-items: center; gap: 12px; }
+.note-modal-title {
+  flex: 1; font-family: 'Space Grotesk', sans-serif; font-weight: 700;
+  font-size: 1.3rem; padding: 6px 0; border: none; background: transparent;
+  border-bottom: 1px solid var(--border); border-radius: 0;
+}
+.note-modal-title:focus { background: transparent; border-color: var(--accent); }
+.note-modal-close {
+  width: 36px; height: 36px; flex: 0 0 auto; border-radius: 10px; cursor: pointer;
+  background: var(--card-2); border: 1px solid var(--border); color: var(--muted); font-size: 0.95rem;
+}
+.note-modal-close:hover { color: var(--text); border-color: var(--border-2); }
+
+.note-modal-text {
+  flex: 1; min-height: 0; resize: none;
+  font-size: 1rem; line-height: 1.75; padding: 16px;
+  border-radius: var(--radius-sm);
+}
+.note-modal-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 12px; border-top: 1px solid var(--border);
+  font-size: 0.78rem; color: var(--muted);
+}
+
+@media (max-width: 640px) {
+  .note-scrim .note-modal { height: 88vh; padding: 18px; }
+  .note-modal-text { font-size: 0.95rem; padding: 12px; }
+}
