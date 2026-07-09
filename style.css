@@ -626,3 +626,14 @@ select option { background: var(--bg-2); color: var(--text); }
   .note-scrim .note-modal { height: 88vh; padding: 18px; }
   .note-modal-text { font-size: 0.95rem; padding: 12px; }
 }
+
+/* Opozorilo o podvojenem podjetju (v oknu za dodajanje) */
+.dup-warn {
+  padding: 11px 14px; border-radius: var(--radius-sm);
+  background: rgba(255, 200, 87, 0.10);
+  border: 1px solid rgba(255, 200, 87, 0.35);
+  color: var(--warn); font-size: 0.85rem; line-height: 1.5;
+  margin-bottom: 4px;
+  animation: rise 0.25s var(--ease) both;
+}
+.dup-warn b { color: var(--warn); }

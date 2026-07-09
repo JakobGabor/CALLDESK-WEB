@@ -374,14 +374,78 @@ function initColdCalls() {
   filterEl.addEventListener("change", render);
 
   document.getElementById("addCompanyBtn").addEventListener("click", modal.open);
+
+  /* ---- Živo opozorilo med tipkanjem (preden klikneš Shrani) ---- */
+  const dupWarn = document.createElement("div");
+  dupWarn.className = "dup-warn";
+  dupWarn.style.display = "none";
+  document.getElementById("saveCompanyBtn").closest(".modal")
+    .insertBefore(dupWarn, document.querySelector("#companyModal .modal-foot"));
+
+  const checkLive = () => {
+    const name = document.getElementById("cName").value.trim();
+    const contact = document.getElementById("cContact").value.trim();
+    if (!name && !contact) { dupWarn.style.display = "none"; return; }
+    const dupes = findDuplicates(name, contact);
+    if (!dupes.length) { dupWarn.style.display = "none"; return; }
+    dupWarn.style.display = "block";
+    dupWarn.innerHTML = `⚠️ <b>Že v seznamu:</b> ` +
+      dupes.slice(0, 3).map(d => escapeHtml(d.name) + (d.city ? ` (${escapeHtml(d.city)})` : "")).join(", ");
+  };
+  document.getElementById("cName").addEventListener("input", checkLive);
+  document.getElementById("cContact").addEventListener("input", checkLive);
+
+  /* ---- Preverjanje podvojenih vnosov ---- */
+  // Poenostavi ime za primerjavo: male črke, brez šumnikov, brez pravnih oblik in ločil.
+  function normName(s) {
+    return String(s || "")
+      .toLowerCase()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")   // č→c, š→s, ž→z
+      .replace(/\b(d\.?o\.?o\.?|s\.?p\.?|d\.?d\.?|k\.?d\.?)\b/g, "") // d.o.o., s.p. …
+      .replace(/[^a-z0-9]/g, "")                            // ločila in presledki
+      .trim();
+  }
+  // Primerja samo števke telefona (da +386 40 123 456 = 040123456)
+  function normPhone(s) {
+    const d = String(s || "").replace(/\D/g, "");
+    return d.length >= 6 ? d.slice(-8) : "";   // zadnjih 8 števk
+  }
+
+  // Vrne seznam obstoječih podjetij, ki so videti kot isto podjetje.
+  function findDuplicates(name, contact) {
+    const n = normName(name);
+    const p = normPhone(contact);
+    return companies.filter(c => {
+      const cn = normName(c.name);
+      if (n && cn && (cn === n || cn.includes(n) || n.includes(cn))) return true;
+      if (p && normPhone(c.contact) === p) return true;
+      return false;
+    });
+  }
+
   document.getElementById("saveCompanyBtn").addEventListener("click", async () => {
     const name = document.getElementById("cName").value.trim();
+    const contact = document.getElementById("cContact").value.trim();
     if (!name) { toast("Vnesi ime podjetja.", "err"); return; }
+
+    // Opozorilo, če je podjetje videti kot podvojeno
+    const dupes = findDuplicates(name, contact);
+    if (dupes.length) {
+      const list = dupes.slice(0, 3).map(d =>
+        `• ${d.name}${d.city ? " (" + d.city + ")" : ""}${d.contact ? " — " + d.contact : ""}`
+      ).join("\n");
+      const ok = confirm(
+        `⚠️ To podjetje je verjetno že v seznamu:\n\n${list}\n\n` +
+        `Vseeno dodam kot novo podjetje?`
+      );
+      if (!ok) return;
+    }
+
     try {
       await addDoc(collection(db, "companies"), {
         name,
         activity: document.getElementById("cActivity").value.trim(),
-        contact: document.getElementById("cContact").value.trim(),
+        contact,
         city: document.getElementById("cCity").value.trim(),
         status: "Ni klicano",
         responseCount: 0,
