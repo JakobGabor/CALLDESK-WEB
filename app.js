@@ -9,7 +9,7 @@ import {
   auth, db, ADMIN_EMAILS,
   onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword,
   signInAnonymously, signOut,
-  collection, doc, addDoc, setDoc, getDoc, updateDoc, deleteDoc,
+  collection, doc, addDoc, setDoc, getDoc, getDocs, updateDoc, deleteDoc,
   onSnapshot, query, where, serverTimestamp, increment,
 } from "./firebase.js";
 
@@ -340,10 +340,34 @@ function initColdCalls() {
         <td>${escapeHtml(c.city) || "<span class='sub'>—</span>"}</td>
         <td><span class="count-pill">${c.responseCount || 0}</span></td>
         <td>${statusBadge(c.status)}</td>
-        <td style="text-align:right">
+        <td style="text-align:right; white-space:nowrap">
           <a class="btn sm primary" href="survey.html?company=${encodeURIComponent(c.id)}">Odpri anketo</a>
+          <button class="btn sm danger" data-del-company="${c.id}" data-name="${escapeHtml(c.name)}" title="Izbriši podjetje">🗑</button>
         </td>
       </tr>`).join("");
+
+    // Poveži gumbe za brisanje (po vsakem izrisu tabele)
+    tbody.querySelectorAll("[data-del-company]").forEach(b =>
+      b.addEventListener("click", () => removeCompany(b.dataset.delCompany, b.dataset.name)));
+  }
+
+  // Izbriše podjetje in vse njegove odgovore
+  async function removeCompany(id, name) {
+    const ok = confirm(
+      `Res izbrišem podjetje "${name}"?\n\n` +
+      `Izbrisani bodo tudi vsi njegovi odgovori.\nTega ni mogoče razveljaviti.`
+    );
+    if (!ok) return;
+    try {
+      // najprej odgovori tega podjetja
+      const snap = await getDocs(query(collection(db, "responses"), where("companyId", "==", id)));
+      await Promise.all(snap.docs.map(d => deleteDoc(doc(db, "responses", d.id))));
+      // nato podjetje
+      await deleteDoc(doc(db, "companies", id));
+      toast(`Podjetje "${name}" izbrisano.`);
+    } catch {
+      toast("Napaka pri brisanju.", "err");
+    }
   }
 
   searchEl.addEventListener("input", render);
