@@ -315,26 +315,27 @@ function initColdCalls() {
     companies.sort((a, b) => (a.name || "").localeCompare(b.name || "", "sl"));
     render();
   }, () => {
-    tbody.innerHTML = `<tr><td colspan="7" class="sub">Napaka pri nalaganju. Preveri Firebase nastavitve.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8" class="sub">Napaka pri nalaganju. Preveri Firebase nastavitve.</td></tr>`;
   });
 
   function render() {
     const q = (searchEl.value || "").toLowerCase().trim();
     const fs = filterEl.value;
     const list = companies.filter(c => {
-      const hay = `${c.name} ${c.activity} ${c.contact} ${c.city}`.toLowerCase();
+      const hay = `${c.name} ${c.person} ${c.activity} ${c.contact} ${c.city}`.toLowerCase();
       const okQ = !q || hay.includes(q);
       const okS = !fs || (c.status || "Ni klicano") === fs;
       return okQ && okS;
     });
 
     if (!list.length) {
-      tbody.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="big">📞</div>Ni podjetij. Dodaj prvo z gumbom zgoraj.</div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="8"><div class="empty"><div class="big">📞</div>Ni podjetij. Dodaj prvo z gumbom zgoraj.</div></td></tr>`;
       return;
     }
     tbody.innerHTML = list.map(c => `
       <tr>
         <td><b>${escapeHtml(c.name)}</b></td>
+        <td>${escapeHtml(c.person) || "<span class='sub'>—</span>"}</td>
         <td>${escapeHtml(c.activity) || "<span class='sub'>—</span>"}</td>
         <td>${escapeHtml(c.contact) || "<span class='sub'>—</span>"}</td>
         <td>${escapeHtml(c.city) || "<span class='sub'>—</span>"}</td>
@@ -444,6 +445,7 @@ function initColdCalls() {
     try {
       await addDoc(collection(db, "companies"), {
         name,
+        person: document.getElementById("cPerson").value.trim(),
         activity: document.getElementById("cActivity").value.trim(),
         contact,
         city: document.getElementById("cCity").value.trim(),
@@ -451,7 +453,7 @@ function initColdCalls() {
         responseCount: 0,
         createdAt: serverTimestamp(),
       });
-      ["cName", "cActivity", "cContact", "cCity"].forEach(id => document.getElementById(id).value = "");
+      ["cName", "cPerson", "cActivity", "cContact", "cCity"].forEach(id => document.getElementById(id).value = "");
       modal.close();
       toast("Podjetje dodano.");
     } catch (e) {
