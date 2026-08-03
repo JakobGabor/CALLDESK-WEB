@@ -205,7 +205,7 @@ guard("admin", (user, info) => {
   function row(label, value) {
     if (!value || (Array.isArray(value) && !value.length)) return "";
     const v = Array.isArray(value) ? value.join(", ") : value;
-    return `<div style="margin-bottom:10px"><div class="sub" style="margin-bottom:2px">${label}</div><div>${escapeHtml(v)}</div></div>`;
+    return `<div style="margin-bottom:10px"><div class="sub" style="margin-bottom:2px">${label}</div><div style="white-space:pre-wrap">${escapeHtml(v)}</div></div>`;
   }
 
   function openLead(id) {
@@ -214,16 +214,29 @@ guard("admin", (user, info) => {
     openLeadId = id;
     leadDetails.innerHTML =
       row("Podjetje", l.companyName) +
+      row("Dejavnost", l.activity) +
       row("Kontaktna oseba", l.contactName) +
       row("Telefon", l.phone) +
       row("E-pošta", l.email) +
+      row("Naslov / kraj", l.address) +
+      row("Delovni čas", l.hours) +
+      row("Trenutna stran", l.currentSite) +
+      row("Slogan", l.slogan) +
+      row("O nas", l.about) +
+      row("Storitve / izdelki", l.services) +
+      row("Cene", l.prices) +
+      row("Slog", l.style) +
+      row("Želene barve", l.colors) +
+      row("Zgledi", l.examples) +
       row("Vrsta strani", l.siteType) +
       row("Glavni cilj", l.goal) +
-      row("Želene podstrani", l.pages) +
+      row("Podstrani", l.pages) +
+      row("Funkcije", l.features) +
       row("Ima logotip", l.hasLogo) +
       row("Ima fotografije", l.hasPhotos) +
       row("Ima besedila", l.hasText) +
-      row("Zgledi", l.examples) +
+      row("Materiali / povezava", l.materials) +
+      row("Družbena omrežja", l.social) +
       row("Izbran paket", l.plan) +
       row("Rok", l.deadline) +
       row("Opombe", l.notes) +
