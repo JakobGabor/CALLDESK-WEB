@@ -637,3 +637,55 @@ select option { background: var(--bg-2); color: var(--text); }
   animation: rise 0.25s var(--ease) both;
 }
 .dup-warn b { color: var(--warn); }
+
+/* =========================================================================
+   JAVNA STRAN — POVPRAŠEVANJE (ponudba.html)
+   ========================================================================= */
+.offer-wrap { max-width: 760px; margin: 0 auto; padding: 40px 18px 70px; }
+.offer-head { text-align: center; margin-bottom: 26px; }
+.offer-head h1 { font-size: clamp(1.6rem, 4vw, 2.2rem); margin-bottom: 8px; }
+.offer-sub { color: var(--muted); font-size: 0.95rem; max-width: 520px; margin: 0 auto; }
+.offer-sec { margin-bottom: 18px; }
+.offer-sec h2 { font-size: 1.12rem; margin-bottom: 16px; }
+.offer-success { margin-bottom: 18px; }
+
+/* Mreža checkboxov */
+.chk-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.chk-grid label {
+  display: flex; align-items: center; gap: 9px; cursor: pointer;
+  padding: 10px 13px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: rgba(255,255,255,0.03);
+  font-size: 0.88rem; transition: all 0.18s;
+}
+.chk-grid label:hover { border-color: var(--border-2); }
+.chk-grid input { width: 17px; height: 17px; accent-color: var(--accent); flex: 0 0 auto; }
+[data-theme="light"] .chk-grid label { background: rgba(15,23,42,0.03); }
+
+/* Paketi / cenik */
+.plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+.plan {
+  position: relative; cursor: pointer; display: block;
+  padding: 18px 16px; border-radius: var(--radius);
+  border: 1.5px solid var(--border); background: rgba(255,255,255,0.03);
+  transition: all 0.2s var(--ease);
+}
+[data-theme="light"] .plan { background: rgba(15,23,42,0.02); }
+.plan:hover { border-color: var(--border-2); transform: translateY(-3px); }
+.plan input { position: absolute; opacity: 0; pointer-events: none; }
+.plan:has(input:checked) {
+  border-color: var(--accent); background: var(--accent-soft);
+  box-shadow: 0 10px 30px var(--accent-glow);
+}
+.plan-name { font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 1.02rem; }
+.plan-price { color: var(--accent); font-weight: 700; font-size: 1.35rem; margin: 4px 0 8px; }
+.plan-desc { color: var(--muted); font-size: 0.82rem; line-height: 1.5; }
+.plan-badge {
+  position: absolute; top: -9px; right: 12px;
+  background: var(--accent); color: #fff; font-size: 0.66rem; font-weight: 700;
+  padding: 3px 9px; border-radius: 999px; letter-spacing: 0.03em;
+}
+
+@media (max-width: 640px) {
+  .offer-wrap { padding: 24px 14px 60px; }
+  .grid.cols-3 { grid-template-columns: 1fr; }
+}

@@ -167,6 +167,81 @@ guard("admin", (user, info) => {
     catch { toast("Napaka pri brisanju.", "err"); }
   }
 
+  /* ---- Povpraševanja za spletno stran (zbirka "ponudbe") ---- */
+  const leadRows = document.getElementById("leadRows");
+  const leadModal = document.getElementById("leadModal");
+  const leadDetails = document.getElementById("leadDetails");
+  let leads = [];
+  let openLeadId = null;
+
+  onSnapshot(collection(db, "ponudbe"), (snap) => {
+    leads = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    leads.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+    document.getElementById("leadCount").textContent = leads.length;
+    renderLeads();
+  }, () => {
+    leadRows.innerHTML = `<tr><td colspan="7" class="sub">Napaka pri nalaganju.</td></tr>`;
+  });
+
+  function renderLeads() {
+    if (!leads.length) {
+      leadRows.innerHTML = `<tr><td colspan="7" class="sub">Še ni povpraševanj. Pošljite stranki povezavo do ponudba.html.</td></tr>`;
+      return;
+    }
+    leadRows.innerHTML = leads.map(l => `
+      <tr>
+        <td class="sub" style="white-space:nowrap">${formatTs(l.createdAt)}</td>
+        <td><b>${escapeHtml(l.companyName) || "—"}</b></td>
+        <td>${escapeHtml(l.contactName) || "—"}<div class="sub">${escapeHtml(l.phone || l.email || "")}</div></td>
+        <td>${escapeHtml(l.siteType) || "—"}</td>
+        <td>${escapeHtml(l.plan) || "<span class='sub'>—</span>"}</td>
+        <td class="sub">${escapeHtml(l.deadline) || "—"}</td>
+        <td style="text-align:right"><button class="btn sm primary" data-lead="${l.id}">Podrobnosti</button></td>
+      </tr>`).join("");
+    leadRows.querySelectorAll("[data-lead]").forEach(b =>
+      b.addEventListener("click", () => openLead(b.dataset.lead)));
+  }
+
+  function row(label, value) {
+    if (!value || (Array.isArray(value) && !value.length)) return "";
+    const v = Array.isArray(value) ? value.join(", ") : value;
+    return `<div style="margin-bottom:10px"><div class="sub" style="margin-bottom:2px">${label}</div><div>${escapeHtml(v)}</div></div>`;
+  }
+
+  function openLead(id) {
+    const l = leads.find(x => x.id === id);
+    if (!l) return;
+    openLeadId = id;
+    leadDetails.innerHTML =
+      row("Podjetje", l.companyName) +
+      row("Kontaktna oseba", l.contactName) +
+      row("Telefon", l.phone) +
+      row("E-pošta", l.email) +
+      row("Vrsta strani", l.siteType) +
+      row("Glavni cilj", l.goal) +
+      row("Želene podstrani", l.pages) +
+      row("Ima logotip", l.hasLogo) +
+      row("Ima fotografije", l.hasPhotos) +
+      row("Ima besedila", l.hasText) +
+      row("Zgledi", l.examples) +
+      row("Izbran paket", l.plan) +
+      row("Rok", l.deadline) +
+      row("Opombe", l.notes) +
+      row("Prispelo", formatTs(l.createdAt));
+    leadModal.classList.add("show");
+  }
+  const closeLead = () => { leadModal.classList.remove("show"); openLeadId = null; };
+  leadModal.addEventListener("click", e => { if (e.target === leadModal) closeLead(); });
+  leadModal.querySelectorAll("[data-close-modal]").forEach(b => b.addEventListener("click", closeLead));
+  document.getElementById("leadDelBtn").addEventListener("click", async () => {
+    if (!openLeadId) return;
+    if (!confirm("Izbrišem to povpraševanje?")) return;
+    const id = openLeadId;
+    closeLead();
+    try { await deleteDoc(doc(db, "ponudbe", id)); toast("Povpraševanje izbrisano."); }
+    catch { toast("Napaka pri brisanju.", "err"); }
+  });
+
   /* ---- Izvoz v CSV ---- */
   document.getElementById("exportCsvBtn").addEventListener("click", () => {
     const headers = ["Datum", "Podjetje", "Ime", "Telefon", "Javil", "Zanima", "Komentar", "Status", "Uporabnik"];

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Povpraševanje za spletno stran</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/svg+xml" href="calldesk-icon.svg" />
+</head>
+<body data-page="offer">
+  <div class="offer-wrap">
+    <!-- Glava -->
+    <header class="offer-head">
+      <div class="brand" style="justify-content:center; padding:0 0 6px">
+        <span class="logo">C</span>
+        <span>CallDesk<small>Izdelava spletnih strani</small></span>
+      </div>
+      <h1 id="offerTitle">Povpraševanje za spletno stran</h1>
+      <p class="offer-sub" id="offerSub">Izpolnite kratek obrazec (2–3 minute) in pripravili vam bomo ponudbo po meri.</p>
+    </header>
+
+    <!-- Uspeh (skrito, prikaže se po oddaji) -->
+    <div class="card pad offer-success" id="offerSuccess" style="display:none">
+      <div class="big" style="font-size:2.6rem; text-align:center">✅</div>
+      <h2 style="text-align:center; margin:8px 0">Hvala za povpraševanje!</h2>
+      <p style="text-align:center; color:var(--muted)">Prejeli smo vaše podatke in se vam bomo kmalu oglasili s ponudbo.</p>
+    </div>
+
+    <form id="offerForm" class="stagger">
+      <!-- 1. Kontakt -->
+      <section class="card pad offer-sec">
+        <h2>1. Vaši podatki</h2>
+        <div class="grid cols-2">
+          <div class="field"><label>Ime podjetja</label><input id="oCompany" placeholder="Podjetje / s.p." /></div>
+          <div class="field"><label>Kontaktna oseba</label><input id="oName" placeholder="Ime in priimek" /></div>
+          <div class="field"><label>Telefon</label><input id="oPhone" type="tel" placeholder="+386 40 123 456" /></div>
+          <div class="field"><label>E-pošta</label><input id="oEmail" type="email" placeholder="ime@podjetje.si" /></div>
+        </div>
+      </section>
+
+      <!-- 2. Kakšno stran -->
+      <section class="card pad offer-sec">
+        <h2>2. Kakšno stran želite?</h2>
+        <div class="field">
+          <label>Vrsta strani</label>
+          <div class="seg" id="oType">
+            <input type="radio" name="type" id="t1" value="Predstavitvena (vizitka)"><label for="t1">Predstavitvena</label>
+            <input type="radio" name="type" id="t2" value="Spletna trgovina"><label for="t2">Spletna trgovina</label>
+            <input type="radio" name="type" id="t3" value="Rezervacije / naročanje"><label for="t3">Rezervacije</label>
+            <input type="radio" name="type" id="t4" value="Drugo"><label for="t4">Drugo</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Glavni cilj strani</label>
+          <div class="seg" id="oGoal">
+            <input type="radio" name="goal" id="g1" value="Več strank"><label for="g1">Več strank</label>
+            <input type="radio" name="goal" id="g2" value="Boljši videz / ugled"><label for="g2">Boljši videz</label>
+            <input type="radio" name="goal" id="g3" value="Spletna prodaja"><label for="g3">Spletna prodaja</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Katere podstrani želite? <span class="hint">(izberite več)</span></label>
+          <div class="chk-grid" id="oPages">
+            <label><input type="checkbox" value="O nas"> O nas</label>
+            <label><input type="checkbox" value="Storitve"> Storitve</label>
+            <label><input type="checkbox" value="Galerija"> Galerija</label>
+            <label><input type="checkbox" value="Cenik"> Cenik</label>
+            <label><input type="checkbox" value="Reference / mnenja"> Reference</label>
+            <label><input type="checkbox" value="Kontakt"> Kontakt</label>
+            <label><input type="checkbox" value="Blog / novice"> Blog</label>
+            <label><input type="checkbox" value="Kontaktni obrazec"> Obrazec</label>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Kaj že imate -->
+      <section class="card pad offer-sec">
+        <h2>3. Kaj že imate?</h2>
+        <div class="grid cols-3">
+          <div class="field"><label>Logotip</label>
+            <div class="seg"><input type="radio" name="logo" id="l1" value="Da"><label for="l1">Da</label>
+            <input type="radio" name="logo" id="l2" value="Ne"><label for="l2">Ne</label></div>
+          </div>
+          <div class="field"><label>Fotografije</label>
+            <div class="seg"><input type="radio" name="photos" id="p1" value="Da"><label for="p1">Da</label>
+            <input type="radio" name="photos" id="p2" value="Ne"><label for="p2">Ne</label></div>
+          </div>
+          <div class="field"><label>Besedila / vsebina</label>
+            <div class="seg"><input type="radio" name="text" id="x1" value="Da"><label for="x1">Da</label>
+            <input type="radio" name="text" id="x2" value="Ne"><label for="x2">Ne</label></div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Zgledi strani, ki so vam všeč <span class="hint">(neobvezno)</span></label>
+          <textarea id="oExamples" placeholder="Prilepite povezave do strani, ki vam ugajajo…"></textarea>
+        </div>
+      </section>
+
+      <!-- 4. Paket / cenik -->
+      <section class="card pad offer-sec">
+        <h2>4. Izberite okviren paket</h2>
+        <p class="hint" style="margin-bottom:14px">Okvirne cene — končna ponudba je prilagojena vašim željam.</p>
+        <div class="plans" id="oPlans">
+          <label class="plan">
+            <input type="radio" name="plan" value="Vizitka (199 €)">
+            <div class="plan-name">Vizitka</div>
+            <div class="plan-price">199 €</div>
+            <div class="plan-desc">Enostranska predstavitev, kontakt, mobilni prikaz.</div>
+          </label>
+          <label class="plan">
+            <input type="radio" name="plan" value="Osnovna (349 €)">
+            <div class="plan-badge">Priljubljeno</div>
+            <div class="plan-name">Osnovna</div>
+            <div class="plan-price">349 €</div>
+            <div class="plan-desc">Do 5 podstrani, galerija, kontaktni obrazec.</div>
+          </label>
+          <label class="plan">
+            <input type="radio" name="plan" value="Poslovna (549 €)">
+            <div class="plan-name">Poslovna</div>
+            <div class="plan-price">549 €</div>
+            <div class="plan-desc">Do 8 podstrani, blog, osnovni SEO, reference.</div>
+          </label>
+          <label class="plan">
+            <input type="radio" name="plan" value="Spletna trgovina (od 790 €)">
+            <div class="plan-name">Trgovina</div>
+            <div class="plan-price">od 790 €</div>
+            <div class="plan-desc">Spletna prodaja, košarica, plačila.</div>
+          </label>
+        </div>
+        <p class="hint" style="margin-top:14px">
+          Dodatno: logotip +49 € · domena in gostovanje ~60 €/leto · mesečno vzdrževanje 15 €/mesec.
+        </p>
+      </section>
+
+      <!-- 5. Rok in opombe -->
+      <section class="card pad offer-sec">
+        <h2>5. Rok in opombe</h2>
+        <div class="field">
+          <label>Kdaj bi želeli stran?</label>
+          <select id="oDeadline">
+            <option value="Čimprej">Čimprej</option>
+            <option value="V 1 mesecu">V 1 mesecu</option>
+            <option value="V 2–3 mesecih">V 2–3 mesecih</option>
+            <option value="Ni nujno">Ni nujno</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Dodatne opombe / želje</label>
+          <textarea id="oNotes" placeholder="Karkoli, kar naj vemo o vaši strani…"></textarea>
+        </div>
+      </section>
+
+      <button type="submit" class="btn primary" id="offerSubmit" style="width:100%; padding:15px; font-size:1rem">
+        Pošlji povpraševanje
+      </button>
+      <div class="form-msg" id="offerMsg" style="text-align:center"></div>
+    </form>
+  </div>
+
+  <div class="toast-box" id="toastBox"></div>
+  <script type="module" src="ponudba.js"></script>
+</body>
+</html>

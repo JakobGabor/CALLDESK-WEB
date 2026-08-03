@@ -38,6 +38,20 @@
           <div class="card stat"><div class="label">Uporabniki</div><div class="stat-num" id="aUsers">0</div></div>
         </div>
 
+        <!-- Povpraševanja za spletno stran -->
+        <div class="card pad" style="margin-bottom:24px">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px">
+            <h2 style="font-size:1.1rem">📩 Povpraševanja za spletno stran</h2>
+            <span class="count-pill" id="leadCount">0</span>
+          </div>
+          <div class="table-wrap" style="border:none; background:transparent; backdrop-filter:none">
+            <table style="min-width:640px">
+              <thead><tr><th>Datum</th><th>Podjetje</th><th>Kontakt</th><th>Tip strani</th><th>Paket</th><th>Rok</th><th></th></tr></thead>
+              <tbody id="leadRows"><tr><td colspan="7" class="sub">Nalagam…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
         <!-- Klici po uporabnikih -->
         <div class="card pad" style="margin-bottom:24px">
           <h2 style="font-size:1.1rem; margin-bottom:14px">Klici po uporabnikih</h2>
@@ -119,6 +133,21 @@
       <div class="modal-foot">
         <button class="btn ghost" data-close-modal>Prekliči</button>
         <button class="btn primary" id="saveEditBtn">Shrani spremembe</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: podrobnosti povpraševanja -->
+  <div class="modal-scrim" id="leadModal">
+    <div class="modal">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px">
+        <h2 style="margin:0">Povpraševanje</h2>
+        <button class="btn sm ghost" data-close-modal>✕</button>
+      </div>
+      <div id="leadDetails"></div>
+      <div class="modal-foot">
+        <button class="btn danger" id="leadDelBtn">🗑 Izbriši</button>
+        <button class="btn primary" data-close-modal>Zapri</button>
       </div>
     </div>
   </div>
