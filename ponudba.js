@@ -40,6 +40,12 @@ const form = document.getElementById("offerForm");
 const msg = document.getElementById("offerMsg");
 const btn = document.getElementById("offerSubmit");
 
+// Zapiranje pojavnega okna z zahvalo
+const thankModal = document.getElementById("thankModal");
+const closeThank = () => thankModal.classList.remove("show");
+document.getElementById("thankClose")?.addEventListener("click", closeThank);
+thankModal?.addEventListener("click", (e) => { if (e.target === thankModal) closeThank(); });
+
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const company = document.getElementById("oCompany").value.trim();
@@ -89,10 +95,11 @@ form.addEventListener("submit", async (e) => {
       createdAt: serverTimestamp(),
     });
 
-    // Prikaži zahvalo, skrij obrazec
+    // Skrij obrazec, prikaži zahvalo + pojavno okno
     form.style.display = "none";
     document.getElementById("offerSuccess").style.display = "block";
     document.getElementById("offerSub").style.display = "none";
+    document.getElementById("thankModal").classList.add("show");
     window.scrollTo({ top: 0, behavior: "smooth" });
   } catch (err) {
     btn.disabled = false;
