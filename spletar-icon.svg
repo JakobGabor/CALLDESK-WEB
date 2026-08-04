@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="Spletar">
+  <defs>
+    <linearGradient id="sp-blue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4a94ff"/>
+      <stop offset="1" stop-color="#2563eb"/>
+    </linearGradient>
+    <linearGradient id="sp-hl" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.28"/>
+      <stop offset="0.55" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="17" fill="url(#sp-blue)"/>
+  <rect x="2" y="2" width="60" height="60" rx="17" fill="url(#sp-hl)"/>
+
+  <!-- brskalniško okno -->
+  <rect x="13" y="15" width="38" height="34" rx="6.5" fill="#ffffff"/>
+  <circle cx="19.5" cy="21.5" r="1.7" fill="#93b4f7"/>
+  <circle cx="25"   cy="21.5" r="1.7" fill="#cdd8ea"/>
+  <circle cx="30.5" cy="21.5" r="1.7" fill="#cdd8ea"/>
+  <line x1="13" y1="26.5" x2="51" y2="26.5" stroke="#e6ebf3" stroke-width="1.4"/>
+
+  <!-- koda </> -->
+  <g fill="none" stroke="url(#sp-blue)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M28 32 L23.5 38 L28 44"/>
+    <path d="M36 32 L40.5 38 L36 44"/>
+    <line x1="33.5" y1="31" x2="30.5" y2="45"/>
+  </g>
+</svg>
