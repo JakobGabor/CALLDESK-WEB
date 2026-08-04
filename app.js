@@ -144,8 +144,8 @@ function renderShell(page, user, info) {
 
   el.innerHTML = `
     <div class="brand">
-      <span class="logo">C</span>
-      <span>CallDesk<small>Nadzorna plošča</small></span>
+      <img src="spletar-icon.svg" alt="Spletar" class="logo-img" />
+      <span>Spletar<small>Nadzorna plošča</small></span>
     </div>
     <nav class="nav">
       ${NAV.map(n => `
