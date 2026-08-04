@@ -10,7 +10,7 @@ import {
 } from "./firebase.js";
 import {
   guard, toast, escapeHtml, statusBadge, formatTs,
-} from "./app.js";
+} from "./app-core.js";
 
 guard("admin", (user, info) => {
   const notAdmin = document.getElementById("notAdmin");
