@@ -309,6 +309,7 @@ function initColdCalls() {
   const filterEl = document.getElementById("companyStatusFilter");
   const modal = bindModal("companyModal");
   let companies = [];
+  let editingId = null;
 
   onSnapshot(collection(db, "companies"), (snap) => {
     companies = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -347,6 +348,7 @@ function initColdCalls() {
         <td>${statusBadge(c.status)}</td>
         <td style="text-align:right; white-space:nowrap">
           <a class="btn sm primary" href="survey.html?company=${encodeURIComponent(c.id)}">Odpri anketo</a>
+          <button class="btn sm" data-edit-company="${c.id}" title="Uredi podjetje">✏</button>
           <button class="btn sm danger" data-del-company="${c.id}" data-name="${escapeHtml(c.name)}" title="Izbriši podjetje">🗑</button>
         </td>
       </tr>`).join("");
@@ -354,7 +356,27 @@ function initColdCalls() {
     // Poveži gumbe za brisanje (po vsakem izrisu tabele)
     tbody.querySelectorAll("[data-del-company]").forEach(b =>
       b.addEventListener("click", () => removeCompany(b.dataset.delCompany, b.dataset.name)));
+    // Poveži gumbe za urejanje
+    tbody.querySelectorAll("[data-edit-company]").forEach(b =>
+      b.addEventListener("click", () => openEditCompany(b.dataset.editCompany)));
   }
+
+  // Polja okna
+  const F = { name: "cName", person: "cPerson", activity: "cActivity", contact: "cContact",
+              city: "cCity", website: "cWebsite", google: "cGoogle" };
+  const clearForm = () => Object.values(F).forEach(id => document.getElementById(id).value = "");
+  const fillForm = (c) => Object.entries(F).forEach(([k, id]) => document.getElementById(id).value = c[k] || "");
+
+  // Odpri okno za UREJANJE obstoječega podjetja
+  function openEditCompany(id) {
+    const c = companies.find(x => x.id === id);
+    if (!c) return;
+    editingId = id;
+    fillForm(c);
+    document.getElementById("companyModalTitle").textContent = "Uredi podjetje";
+    document.getElementById("saveCompanyBtn").textContent = "Shrani spremembe";
+    dupWarn.style.display = "none";
+    modal.open();
 
   // Izbriše podjetje in vse njegove odgovore
   async function removeCompany(id, name) {
@@ -378,7 +400,14 @@ function initColdCalls() {
   searchEl.addEventListener("input", render);
   filterEl.addEventListener("change", render);
 
-  document.getElementById("addCompanyBtn").addEventListener("click", modal.open);
+  document.getElementById("addCompanyBtn").addEventListener("click", () => {
+    editingId = null;
+    clearForm();
+    document.getElementById("companyModalTitle").textContent = "Dodaj podjetje";
+    document.getElementById("saveCompanyBtn").textContent = "Shrani";
+    dupWarn.style.display = "none";
+    modal.open();
+  });
 
   /* ---- Živo opozorilo med tipkanjem (preden klikneš Shrani) ---- */
   const dupWarn = document.createElement("div");
@@ -388,6 +417,7 @@ function initColdCalls() {
     .insertBefore(dupWarn, document.querySelector("#companyModal .modal-foot"));
 
   const checkLive = () => {
+    if (editingId) { dupWarn.style.display = "none"; return; }
     const name = document.getElementById("cName").value.trim();
     const contact = document.getElementById("cContact").value.trim();
     if (!name && !contact) { dupWarn.style.display = "none"; return; }
@@ -433,7 +463,32 @@ function initColdCalls() {
     const contact = document.getElementById("cContact").value.trim();
     if (!name) { toast("Vnesi ime podjetja.", "err"); return; }
 
-    // Opozorilo, če je podjetje videti kot podvojeno
+    // Skupni podatki iz obrazca
+    const data = {
+      name,
+      person: document.getElementById("cPerson").value.trim(),
+      activity: document.getElementById("cActivity").value.trim(),
+      contact,
+      city: document.getElementById("cCity").value.trim(),
+      website: document.getElementById("cWebsite").value.trim(),
+      google: document.getElementById("cGoogle").value.trim(),
+    };
+
+    // --- UREJANJE obstoječega podjetja ---
+    if (editingId) {
+      try {
+        await updateDoc(doc(db, "companies", editingId), data);
+        editingId = null;
+        clearForm();
+        modal.close();
+        toast("Spremembe shranjene.");
+      } catch (e) {
+        toast("Napaka pri shranjevanju.", "err");
+      }
+      return;
+    }
+
+    // --- DODAJANJE novega: opozorilo, če je videti kot podvojeno ---
     const dupes = findDuplicates(name, contact);
     if (dupes.length) {
       const list = dupes.slice(0, 3).map(d =>
@@ -448,18 +503,12 @@ function initColdCalls() {
 
     try {
       await addDoc(collection(db, "companies"), {
-        name,
-        person: document.getElementById("cPerson").value.trim(),
-        activity: document.getElementById("cActivity").value.trim(),
-        contact,
-        city: document.getElementById("cCity").value.trim(),
-        website: document.getElementById("cWebsite").value.trim(),
-        google: document.getElementById("cGoogle").value.trim(),
+        ...data,
         status: "Ni klicano",
         responseCount: 0,
         createdAt: serverTimestamp(),
       });
-      ["cName", "cPerson", "cActivity", "cContact", "cCity", "cWebsite", "cGoogle"].forEach(id => document.getElementById(id).value = "");
+      clearForm();
       modal.close();
       toast("Podjetje dodano.");
     } catch (e) {
