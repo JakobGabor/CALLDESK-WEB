@@ -21,6 +21,8 @@
           <p>Podjetja za klicanje. Odpri anketo in beleži odgovore.</p>
         </div>
         <div class="spacer"></div>
+        <button class="btn" id="importCsvBtn">⬆ Uvozi CSV</button>
+        <input type="file" id="csvFile" accept=".csv,text/csv" style="display:none" />
         <button class="btn primary" id="addCompanyBtn">+ Dodaj podjetje</button>
       </div>
 
@@ -88,6 +90,36 @@
       <div class="modal-foot">
         <button class="btn ghost" data-close-modal>Prekliči</button>
         <button class="btn primary" id="saveCompanyBtn">Shrani</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: uvoz CSV -->
+  <div class="modal-scrim" id="csvModal">
+    <div class="modal">
+      <h2>Uvoz iz CSV</h2>
+      <div id="csvIntro">
+        <p class="hint" style="margin-bottom:14px">
+          Datoteka naj ima v prvi vrstici naslove stolpcev. Prepoznam te stolpce
+          (velike/male črke in vrstni red niso pomembni):
+        </p>
+        <div class="csv-cols">
+          <span>Podjetje</span><span>Kontaktna oseba</span><span>Dejavnost</span>
+          <span>Kontakt</span><span>Kraj</span><span>Spletna stran</span><span>Google ocene</span>
+        </div>
+        <p class="hint" style="margin:14px 0">
+          Podjetja se uvozijo v državo, ki je izbrana v zavihku:
+          <b id="csvCountryName">Slovenija</b>. Podvojena podjetja preskočim.
+        </p>
+      </div>
+      <div id="csvProgress" style="display:none">
+        <p style="margin-bottom:10px">Uvažam… <b id="csvDone">0</b> / <span id="csvTotal">0</span></p>
+        <div class="csv-bar"><div id="csvBarFill"></div></div>
+      </div>
+      <div id="csvResult" style="display:none"></div>
+      <div class="modal-foot">
+        <button class="btn ghost" data-close-modal>Zapri</button>
+        <button class="btn primary" id="csvPickBtn">Izberi datoteko</button>
       </div>
     </div>
   </div>

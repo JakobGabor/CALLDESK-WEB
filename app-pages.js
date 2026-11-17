@@ -155,6 +155,176 @@ export function initColdCalls() {
   searchEl.addEventListener("input", render);
   filterEl.addEventListener("change", render);
 
+  /* =======================================================================
+     UVOZ IZ CSV
+     ===================================================================== */
+  const csvModal = bindModal("csvModal");
+  const csvFile = document.getElementById("csvFile");
+
+  const DRZ_IME = { SI: "Slovenija", US: "ZDA", all: "Slovenija" };
+
+  document.getElementById("importCsvBtn")?.addEventListener("click", () => {
+    document.getElementById("csvIntro").style.display = "block";
+    document.getElementById("csvProgress").style.display = "none";
+    document.getElementById("csvResult").style.display = "none";
+    document.getElementById("csvPickBtn").style.display = "";
+    document.getElementById("csvCountryName").textContent = DRZ_IME[activeCountry] || "Slovenija";
+    csvModal.open();
+  });
+
+  document.getElementById("csvPickBtn")?.addEventListener("click", () => csvFile.click());
+
+  csvFile?.addEventListener("change", (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const r = new FileReader();
+    r.onload = () => { uvoziCsv(String(r.result)); csvFile.value = ""; };
+    r.onerror = () => { toast("Datoteke ni bilo mogoče prebrati.", "err"); csvFile.value = ""; };
+    r.readAsText(f, "UTF-8");
+  });
+
+  // Razčleni eno vrstico CSV (podpira narekovaje in vejice znotraj njih)
+  function parseVrstica(line, sep) {
+    const out = []; let cur = ""; let inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (inQ) {
+        if (ch === '"' && line[i + 1] === '"') { cur += '"'; i++; }
+        else if (ch === '"') inQ = false;
+        else cur += ch;
+      } else {
+        if (ch === '"') inQ = true;
+        else if (ch === sep) { out.push(cur); cur = ""; }
+        else cur += ch;
+      }
+    }
+    out.push(cur);
+    return out.map(s => s.trim());
+  }
+
+  // Poenostavi ime stolpca za primerjavo
+  const kljuc = (s) => String(s || "").toLowerCase()
+    .normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]/g, "");
+
+  // Kateri naslovi stolpcev ustrezajo kateremu polju
+  const STOLPCI = {
+    name:    ["podjetje", "imepodjetja", "naziv", "company", "name", "businessname"],
+    person:  ["kontaktnaoseba", "oseba", "imeinpriimek", "contact", "contactperson", "owner"],
+    activity:["dejavnost", "vrstadejavnosti", "panoga", "category", "type", "industry"],
+    contact: ["kontakt", "telefon", "tel", "phone", "telephone", "mobile"],
+    city:    ["kraj", "mesto", "city", "location", "town"],
+    website: ["spletnastran", "stran", "website", "web", "url", "site"],
+    google:  ["googleocene", "ocene", "ocena", "rating", "reviews", "googlerating"],
+  };
+
+  async function uvoziCsv(besedilo) {
+    // odstrani BOM
+    besedilo = besedilo.replace(/^﻿/, "");
+    const vrstice = besedilo.split(/\r?\n/).filter(v => v.trim() !== "");
+    if (vrstice.length < 2) {
+      toast("Datoteka je prazna ali nima podatkov.", "err");
+      return;
+    }
+
+    // ugotovi ločilo: podpičje ali vejica (kar je pogostejše v glavi)
+    const glavaRaw = vrstice[0];
+    const sep = (glavaRaw.split(";").length > glavaRaw.split(",").length) ? ";" : ",";
+    const glava = parseVrstica(glavaRaw, sep).map(kljuc);
+
+    // poveži stolpce s polji
+    const idx = {};
+    Object.entries(STOLPCI).forEach(([polje, imena]) => {
+      const i = glava.findIndex(h => imena.includes(h));
+      if (i !== -1) idx[polje] = i;
+    });
+
+    if (idx.name === undefined) {
+      pokaziRezultat(`<p style="color:var(--danger)">V datoteki ne najdem stolpca z imenom podjetja.</p>
+        <p class="hint" style="margin-top:8px">Prva vrstica naj vsebuje naslov <b>Podjetje</b> (ali Company / Name).</p>`);
+      return;
+    }
+
+    const drz = activeCountry === "all" ? "SI" : activeCountry;
+    const vrstic = vrstice.length - 1;
+
+    // pripravi vnose
+    const kandidati = [];
+    for (let i = 1; i < vrstice.length; i++) {
+      const p = parseVrstica(vrstice[i], sep);
+      const v = (k) => (idx[k] !== undefined ? (p[idx[k]] || "").trim() : "");
+      const ime = v("name");
+      if (!ime) continue;
+      kandidati.push({
+        name: ime,
+        person: v("person"),
+        activity: v("activity"),
+        contact: v("contact"),
+        city: v("city"),
+        website: v("website"),
+        google: v("google"),
+        country: drz,
+      });
+    }
+
+    if (!kandidati.length) {
+      pokaziRezultat(`<p style="color:var(--danger)">V datoteki ni nobene vrstice z imenom podjetja.</p>`);
+      return;
+    }
+
+    // prikaz napredka
+    document.getElementById("csvIntro").style.display = "none";
+    document.getElementById("csvPickBtn").style.display = "none";
+    document.getElementById("csvProgress").style.display = "block";
+    document.getElementById("csvTotal").textContent = kandidati.length;
+
+    // že obstoječa podjetja v tej državi (za preskok dvojnikov)
+    const obstojeca = new Set(
+      companies.filter(c => countryOf(c) === drz).map(c => normName(c.name))
+    );
+    const vDatoteki = new Set();
+
+    let dodanih = 0, preskocenih = 0, napak = 0;
+
+    for (let i = 0; i < kandidati.length; i++) {
+      const k = kandidati[i];
+      const n = normName(k.name);
+      if (obstojeca.has(n) || vDatoteki.has(n)) { preskocenih++; }
+      else {
+        try {
+          await addDoc(collection(db, "companies"), {
+            ...k, status: "Ni klicano", responseCount: 0, createdAt: serverTimestamp(),
+          });
+          vDatoteki.add(n);
+          dodanih++;
+        } catch { napak++; }
+      }
+      const done = i + 1;
+      document.getElementById("csvDone").textContent = done;
+      document.getElementById("csvBarFill").style.width =
+        Math.round(done / kandidati.length * 100) + "%";
+    }
+
+    pokaziRezultat(`
+      <p style="margin-bottom:12px"><b>Uvoz končan.</b></p>
+      <div class="csv-stat"><span>Dodanih podjetij</span><b style="color:var(--accent)">${dodanih}</b></div>
+      <div class="csv-stat"><span>Preskočenih (že obstajajo)</span><b>${preskocenih}</b></div>
+      ${napak ? `<div class="csv-stat"><span>Napak pri shranjevanju</span><b style="color:var(--danger)">${napak}</b></div>` : ""}
+      <div class="csv-stat"><span>Prebranih vrstic</span><b>${vrstic}</b></div>
+      <p class="hint" style="margin-top:12px">Uvoženo v: <b>${DRZ_IME[drz]}</b></p>
+    `);
+    if (dodanih) toast(`Uvoženih ${dodanih} podjetij.`);
+  }
+
+  function pokaziRezultat(html) {
+    document.getElementById("csvIntro").style.display = "none";
+    document.getElementById("csvProgress").style.display = "none";
+    document.getElementById("csvPickBtn").style.display = "none";
+    const r = document.getElementById("csvResult");
+    r.style.display = "block";
+    r.innerHTML = html;
+  }
+
   document.getElementById("addCompanyBtn").addEventListener("click", () => {
     editingId = null;
     clearForm();
