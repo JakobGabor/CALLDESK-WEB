@@ -325,6 +325,108 @@ export function initColdCalls() {
     r.innerHTML = html;
   }
 
+  /* =======================================================================
+     BRISANJE VSEH PODJETIJ (v trenutno izbranem zavihku)
+     ===================================================================== */
+  const wipeModal = bindModal("wipeModal");
+  const wipeInput = document.getElementById("wipeConfirm");
+  const wipeGo = document.getElementById("wipeGoBtn");
+
+  // Katera podjetja bo brisanje zajelo
+  function wipeSeznam() {
+    return activeCountry === "all"
+      ? companies.slice()
+      : companies.filter(c => countryOf(c) === activeCountry);
+  }
+
+  // Potrditvena beseda — sprejmemo z ali brez šumnika, velike ali male črke
+  const potrjeno = () => {
+    const v = (wipeInput?.value || "").trim().toLowerCase()
+      .normalize("NFD").replace(/[̀-ͯ]/g, "");
+    return v === "zbrisi";
+  };
+
+  wipeInput?.addEventListener("input", () => { if (wipeGo) wipeGo.disabled = !potrjeno(); });
+
+  document.getElementById("wipeBtn")?.addEventListener("click", () => {
+    const t = wipeSeznam();
+    if (!t.length) { toast("V tem zavihku ni podjetij.", "err"); return; }
+    document.getElementById("wipeIntro").style.display = "block";
+    document.getElementById("wipeProgress").style.display = "none";
+    document.getElementById("wipeResult").style.display = "none";
+    document.getElementById("wipeFoot").style.display = "";
+    document.getElementById("wipeFootEnd").style.display = "none";
+    document.getElementById("wipeCount").textContent = t.length;
+    document.getElementById("wipeWhere").textContent =
+      activeCountry === "all" ? "vse države" : (DRZ_IME[activeCountry] || "Slovenija");
+    if (wipeInput) wipeInput.value = "";
+    if (wipeGo) wipeGo.disabled = true;
+    wipeModal.open();
+    setTimeout(() => wipeInput?.focus(), 60);
+  });
+
+  wipeGo?.addEventListener("click", async () => {
+    if (!potrjeno()) return;
+    const t = wipeSeznam();
+    if (!t.length) { toast("V tem zavihku ni podjetij.", "err"); return; }
+    const ids = new Set(t.map(c => c.id));
+    const kje = activeCountry === "all" ? "vse države" : (DRZ_IME[activeCountry] || "Slovenija");
+
+    // preklop na prikaz napredka
+    document.getElementById("wipeIntro").style.display = "none";
+    document.getElementById("wipeFoot").style.display = "none";
+    document.getElementById("wipeProgress").style.display = "block";
+
+    // poišči odgovore, ki pripadajo tem podjetjem
+    let odgovori = [];
+    try {
+      const rs = await getDocs(collection(db, "responses"));
+      odgovori = rs.docs
+        .filter(d => ids.has((d.data() || {}).companyId))
+        .map(d => d.id);
+    } catch { /* če ne gre, pobrišemo vsaj podjetja */ }
+
+    const skupaj = t.length + odgovori.length;
+    document.getElementById("wipeTotal").textContent = skupaj;
+    let narejeno = 0;
+    const korak = () => {
+      narejeno++;
+      document.getElementById("wipeDone").textContent = narejeno;
+      document.getElementById("wipeBarFill").style.width =
+        Math.round(narejeno / skupaj * 100) + "%";
+    };
+
+    // brisanje po svežnjih (10 naenkrat, da ne preobremenimo povezave)
+    async function brisiSeznam(pot, seznam) {
+      let ok = 0, err = 0;
+      for (let i = 0; i < seznam.length; i += 10) {
+        await Promise.all(seznam.slice(i, i + 10).map(async (id) => {
+          try { await deleteDoc(doc(db, pot, id)); ok++; } catch { err++; }
+          korak();
+        }));
+      }
+      return { ok, err };
+    }
+
+    const ro = await brisiSeznam("responses", odgovori);
+    const po = await brisiSeznam("companies", t.map(c => c.id));
+    const napak = ro.err + po.err;
+
+    document.getElementById("wipeProgress").style.display = "none";
+    const r = document.getElementById("wipeResult");
+    r.style.display = "block";
+    r.innerHTML = `
+      <p style="margin-bottom:12px"><b>Brisanje končano.</b></p>
+      <div class="csv-stat"><span>Izbrisanih podjetij</span><b>${po.ok}</b></div>
+      <div class="csv-stat"><span>Izbrisanih odgovorov</span><b>${ro.ok}</b></div>
+      ${napak ? `<div class="csv-stat"><span>Napak pri brisanju</span><b style="color:var(--danger)">${napak}</b></div>` : ""}
+      <p class="hint" style="margin-top:12px">Zavihek: <b>${escapeHtml(kje)}</b></p>`;
+    document.getElementById("wipeFootEnd").style.display = "";
+
+    if (napak) toast(`Izbrisano, a ${napak} vnosov ni bilo mogoče izbrisati.`, "err");
+    else toast(`Izbrisanih ${po.ok} podjetij.`);
+  });
+
   document.getElementById("addCompanyBtn").addEventListener("click", () => {
     editingId = null;
     clearForm();

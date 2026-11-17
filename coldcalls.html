@@ -67,6 +67,15 @@
           </tbody>
         </table>
       </div>
+
+      <!-- Nevarno območje -->
+      <div class="danger-zone">
+        <div>
+          <b>Zbriši vsa podjetja</b>
+          <p>Izbriše vsa podjetja v zavihku, ki je trenutno izbran zgoraj, skupaj z njihovimi odgovori. Uporabno, če se je uvoz ponesrečil.</p>
+        </div>
+        <button class="btn danger" id="wipeBtn">🗑 Zbriši vse</button>
+      </div>
     </main>
   </div>
 
@@ -120,6 +129,36 @@
       <div class="modal-foot">
         <button class="btn ghost" data-close-modal>Zapri</button>
         <button class="btn primary" id="csvPickBtn">Izberi datoteko</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: brisanje vseh podjetij -->
+  <div class="modal-scrim" id="wipeModal">
+    <div class="modal">
+      <h2>Zbriši vsa podjetja</h2>
+      <div id="wipeIntro">
+        <div class="danger-warn">
+          Izbrisal bom <b id="wipeCount">0</b> podjetij — <b id="wipeWhere">Slovenija</b>.<br />
+          Izbrisani bodo tudi vsi njihovi odgovori iz ankete.
+          <b>Tega ni mogoče razveljaviti.</b>
+        </div>
+        <div class="field" style="margin-top:16px">
+          <label>Za potrditev v polje prepiši besedo <b>ZBRISI</b></label>
+          <input id="wipeConfirm" placeholder="ZBRISI" autocomplete="off" />
+        </div>
+      </div>
+      <div id="wipeProgress" style="display:none">
+        <p style="margin-bottom:10px">Brišem… <b id="wipeDone">0</b> / <span id="wipeTotal">0</span></p>
+        <div class="csv-bar"><div id="wipeBarFill"></div></div>
+      </div>
+      <div id="wipeResult" style="display:none"></div>
+      <div class="modal-foot" id="wipeFoot">
+        <button class="btn ghost" data-close-modal>Prekliči</button>
+        <button class="btn danger" id="wipeGoBtn" disabled>Zbriši dokončno</button>
+      </div>
+      <div class="modal-foot" id="wipeFootEnd" style="display:none">
+        <button class="btn ghost" data-close-modal>Zapri</button>
       </div>
     </div>
   </div>

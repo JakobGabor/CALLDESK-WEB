@@ -750,3 +750,34 @@ select option { background: var(--bg-2); color: var(--text); }
 }
 .csv-stat:last-child{ border-bottom:0; }
 .csv-stat span{ color:var(--muted); }
+
+/* =========================================================================
+   NEVARNO OBMOČJE — brisanje vseh podjetij
+   ========================================================================= */
+.topbar{ flex-wrap:wrap; }
+.hint{ font-size:.82rem; color:var(--muted); line-height:1.55; }
+
+.danger-zone{
+  margin-top:26px; padding:18px 20px;
+  display:flex; align-items:center; justify-content:space-between; gap:18px;
+  border:1px solid rgba(255,93,108,.28); border-radius:var(--radius);
+  background:rgba(255,93,108,.05);
+}
+.danger-zone b{ font-size:.95rem; }
+.danger-zone p{
+  margin-top:4px; font-size:.82rem; color:var(--muted);
+  line-height:1.55; max-width:52ch;
+}
+.danger-zone .btn{ flex:0 0 auto; }
+@media (max-width:640px){
+  .danger-zone{ flex-direction:column; align-items:flex-start; gap:14px; }
+  .danger-zone .btn{ width:100%; }
+}
+
+.danger-warn{
+  padding:13px 15px; border-radius:var(--radius-sm);
+  background:rgba(255,93,108,.09);
+  border:1px solid rgba(255,93,108,.32);
+  color:var(--text); font-size:.88rem; line-height:1.6;
+}
+.danger-warn b{ color:var(--danger); }
