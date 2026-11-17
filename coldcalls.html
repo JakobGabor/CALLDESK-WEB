@@ -54,8 +54,10 @@
               <th>Kontaktna oseba</th>
               <th>Vrsta dejavnosti</th>
               <th>Kontakt</th>
+              <th>Gmail</th>
               <th>Kraj</th>
               <th>Spletna stran</th>
+              <th>Razlog spletne strani</th>
               <th>Google ocene</th>
               <th>Št. odgovorov</th>
               <th>Status</th>
@@ -63,7 +65,7 @@
             </tr>
           </thead>
           <tbody id="companyRows">
-            <tr><td colspan="10"><div class="center-load"><span class="loading"></span></div></td></tr>
+            <tr><td colspan="12"><div class="center-load"><span class="loading"></span></div></td></tr>
           </tbody>
         </table>
       </div>
@@ -92,9 +94,11 @@
       <div class="field"><label>Ime podjetja</label><input id="cName" placeholder="Podjetje d.o.o." /></div>
       <div class="field"><label>Kontaktna oseba <span class="hint">(ime in priimek)</span></label><input id="cPerson" placeholder="Janez Novak" /></div>
       <div class="field"><label>Vrsta dejavnosti</label><input id="cActivity" placeholder="Gostinstvo, IT, trgovina…" /></div>
-      <div class="field"><label>Kontakt</label><input id="cContact" placeholder="Telefon ali e-pošta" /></div>
+      <div class="field"><label>Kontakt <span class="hint">(telefon)</span></label><input id="cContact" placeholder="041 123 456" /></div>
+      <div class="field"><label>Gmail <span class="hint">(e-poštni naslov)</span></label><input id="cEmail" type="email" placeholder="info@primer.si" /></div>
       <div class="field"><label>Kraj</label><input id="cCity" placeholder="Ljubljana" /></div>
       <div class="field"><label>Trenutna spletna stran <span class="hint">(povezava, če obstaja)</span></label><input id="cWebsite" placeholder="https://www.primer.si" /></div>
+      <div class="field"><label>Razlog spletne strani <span class="hint">(zakaj jo potrebujejo)</span></label><textarea id="cReason" style="min-height:70px" placeholder="Nimajo strani · stara stran · ni mobilna · samo Facebook …"></textarea></div>
       <div class="field"><label>Google ocene <span class="hint">(ocena in št. ocen)</span></label><input id="cGoogle" placeholder="npr. 4,7 (32 ocen)" /></div>
       <div class="modal-foot">
         <button class="btn ghost" data-close-modal>Prekliči</button>
@@ -114,7 +118,8 @@
         </p>
         <div class="csv-cols">
           <span>Podjetje</span><span>Kontaktna oseba</span><span>Dejavnost</span>
-          <span>Kontakt</span><span>Kraj</span><span>Spletna stran</span><span>Google ocene</span>
+          <span>Kontakt</span><span>Gmail</span><span>Kraj</span><span>Spletna stran</span>
+          <span>Razlog</span><span>Google ocene</span>
         </div>
         <p class="hint" style="margin:14px 0">
           Podjetja se uvozijo v državo, ki je izbrana v zavihku:

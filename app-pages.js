@@ -58,7 +58,7 @@ export function initColdCalls() {
     companies.sort((a, b) => (a.name || "").localeCompare(b.name || "", "sl"));
     render();
   }, () => {
-    tbody.innerHTML = `<tr><td colspan="10" class="sub">Napaka pri nalaganju. Preveri Firebase nastavitve.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="12" class="sub">Napaka pri nalaganju. Preveri Firebase nastavitve.</td></tr>`;
   });
 
   function render() {
@@ -66,7 +66,7 @@ export function initColdCalls() {
     const q = (searchEl.value || "").toLowerCase().trim();
     const fs = filterEl.value;
     const list = companies.filter(c => {
-      const hay = `${c.name} ${c.person} ${c.activity} ${c.contact} ${c.city} ${c.website} ${c.google}`.toLowerCase();
+      const hay = `${c.name} ${c.person} ${c.activity} ${c.contact} ${c.email} ${c.city} ${c.website} ${c.reason} ${c.google}`.toLowerCase();
       const okQ = !q || hay.includes(q);
       const okS = !fs || (c.status || "Ni klicano") === fs;
       const okC = activeCountry === "all" || countryOf(c) === activeCountry;
@@ -76,7 +76,7 @@ export function initColdCalls() {
     if (!list.length) {
       const kje = activeCountry === "US" ? " v ZDA"
                 : activeCountry === "SI" ? " v Sloveniji" : "";
-      tbody.innerHTML = `<tr><td colspan="10"><div class="empty"><div class="big">📞</div>Ni podjetij${kje}. Dodaj prvo z gumbom zgoraj.</div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="12"><div class="empty"><div class="big">📞</div>Ni podjetij${kje}. Dodaj prvo z gumbom zgoraj.</div></td></tr>`;
       return;
     }
     tbody.innerHTML = list.map(c => `
@@ -85,10 +85,14 @@ export function initColdCalls() {
         <td>${escapeHtml(c.person) || "<span class='sub'>—</span>"}</td>
         <td>${escapeHtml(c.activity) || "<span class='sub'>—</span>"}</td>
         <td>${escapeHtml(c.contact) || "<span class='sub'>—</span>"}</td>
+        <td>${c.email
+          ? `<a href="mailto:${encodeURIComponent(c.email).replace(/%40/g, "@")}" class="mail-link">${escapeHtml(c.email)}</a>`
+          : "<span class='sub'>—</span>"}</td>
         <td>${escapeHtml(c.city) || "<span class='sub'>—</span>"}</td>
         <td>${c.website
           ? `<a href="${encodeURI(c.website)}" target="_blank" rel="noopener" class="badge s-zainteresiran" style="text-decoration:none">Da ↗</a>`
           : `<span class="badge s-ni-zainteresiran">Ne</span>`}</td>
+        <td class="cell-reason">${escapeHtml(c.reason) || "<span class='sub'>—</span>"}</td>
         <td>${escapeHtml(c.google) || "<span class='sub'>—</span>"}</td>
         <td><span class="count-pill">${c.responseCount || 0}</span></td>
         <td>${statusBadge(c.status)}</td>
@@ -109,7 +113,8 @@ export function initColdCalls() {
 
   // Polja okna
   const F = { name: "cName", person: "cPerson", activity: "cActivity", contact: "cContact",
-              city: "cCity", website: "cWebsite", google: "cGoogle" };
+              email: "cEmail", city: "cCity", website: "cWebsite", reason: "cReason",
+              google: "cGoogle" };
   const countryEl = () => document.getElementById("cCountry");
   // Ob praznem obrazcu predlagamo državo trenutnega zavihka
   const clearForm = () => {
@@ -213,8 +218,11 @@ export function initColdCalls() {
     person:  ["kontaktnaoseba", "oseba", "imeinpriimek", "contact", "contactperson", "owner"],
     activity:["dejavnost", "vrstadejavnosti", "panoga", "category", "type", "industry"],
     contact: ["kontakt", "telefon", "tel", "phone", "telephone", "mobile"],
+    email:   ["gmail", "email", "mail", "eposta", "epostninaslov", "emailaddress", "epota"],
     city:    ["kraj", "mesto", "city", "location", "town"],
     website: ["spletnastran", "stran", "website", "web", "url", "site"],
+    reason:  ["razlog", "razlogspletnestrani", "razlogzaspletnostran", "zakaj", "opomba",
+              "opombe", "reason", "note", "notes", "why"],
     google:  ["googleocene", "ocene", "ocena", "rating", "reviews", "googlerating"],
   };
 
@@ -260,8 +268,10 @@ export function initColdCalls() {
         person: v("person"),
         activity: v("activity"),
         contact: v("contact"),
+        email: v("email"),
         city: v("city"),
         website: v("website"),
+        reason: v("reason"),
         google: v("google"),
         country: drz,
       });
@@ -499,8 +509,10 @@ export function initColdCalls() {
       person: document.getElementById("cPerson").value.trim(),
       activity: document.getElementById("cActivity").value.trim(),
       contact,
+      email: document.getElementById("cEmail").value.trim(),
       city: document.getElementById("cCity").value.trim(),
       website: document.getElementById("cWebsite").value.trim(),
+      reason: document.getElementById("cReason").value.trim(),
       google: document.getElementById("cGoogle").value.trim(),
       country: countryEl() ? countryEl().value : "SI",
     };

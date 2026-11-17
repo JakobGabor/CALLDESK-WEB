@@ -781,3 +781,12 @@ select option { background: var(--bg-2); color: var(--text); }
   color:var(--text); font-size:.88rem; line-height:1.6;
 }
 .danger-warn b{ color:var(--danger); }
+
+/* Stolpca Gmail in Razlog spletne strani */
+.mail-link{ color:var(--accent); text-decoration:none; font-size:.86rem; }
+.mail-link:hover{ text-decoration:underline; }
+.cell-reason{
+  max-width:260px; min-width:150px; white-space:normal;
+  font-size:.84rem; color:var(--muted); line-height:1.5;
+}
+body[data-page="coldcalls"] table{ min-width:1060px; }
