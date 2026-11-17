@@ -13,9 +13,28 @@ import {
 // Anonimna prijava v ozadju (potrebna za pisanje v Firestore).
 const authReady = signInAnonymously(auth).catch((e) => { console.error(e); throw e; });
 
-// Če povezava vsebuje ?podjetje=ID, povežemo obrazec s podjetjem iz Cold Calli.
+// Jezik strani: ponudba.html je slovenska, quote.html angleška (lang="en").
+const LANG = String(document.documentElement.lang || "sl").toLowerCase().startsWith("en") ? "en" : "sl";
+const T = {
+  sl: {
+    needName: "Vnesite ime podjetja ali kontaktne osebe.",
+    needContact: "Vnesite telefon ali e-pošto, da vas lahko kontaktiramo.",
+    sending: "Pošiljam…",
+    error: "Napaka pri pošiljanju. Poskusite znova ali nas pokličite.",
+    titleFor: (n) => `Ponudba za ${n}`,
+  },
+  en: {
+    needName: "Please enter your business name or a contact name.",
+    needContact: "Please enter a phone number or an email so I can reach you.",
+    sending: "Sending…",
+    error: "Something went wrong. Please try again, or email jakob.gabor@gmail.com.",
+    titleFor: (n) => `Quote for ${n}`,
+  },
+}[LANG];
+
+// Če povezava vsebuje ?podjetje=ID (ali ?company=ID), povežemo obrazec s podjetjem iz Cold Calli.
 const params = new URLSearchParams(location.search);
-const companyId = params.get("podjetje");
+const companyId = params.get("podjetje") || params.get("company");
 
 if (companyId) {
   getDoc(doc(db, "companies", companyId)).then((snap) => {
@@ -25,7 +44,7 @@ if (companyId) {
       if (el && c.name) el.value = c.name;
       if (c.person) { const n = document.getElementById("oName"); if (n) n.value = c.person; }
       const t = document.getElementById("offerTitle");
-      if (t && c.name) t.textContent = `Ponudba za ${c.name}`;
+      if (t && c.name) t.textContent = T.titleFor(c.name);
     }
   }).catch(() => { /* ni kritično */ });
 }
@@ -54,12 +73,12 @@ form.addEventListener("submit", async (e) => {
 
   // Minimalna zahteva: vsaj kontakt (telefon ali e-pošta) in ime podjetja/osebe
   const email = document.getElementById("oEmail").value.trim();
-  if (!company && !name) { msg.className = "form-msg err"; msg.textContent = "Vnesite ime podjetja ali kontaktne osebe."; return; }
-  if (!phone && !email) { msg.className = "form-msg err"; msg.textContent = "Vnesite telefon ali e-pošto, da vas lahko kontaktiramo."; return; }
+  if (!company && !name) { msg.className = "form-msg err"; msg.textContent = T.needName; return; }
+  if (!phone && !email) { msg.className = "form-msg err"; msg.textContent = T.needContact; return; }
 
   btn.disabled = true;
   msg.className = "form-msg";
-  msg.textContent = "Pošiljam…";
+  msg.textContent = T.sending;
 
   try {
     await authReady; // počakaj na anonimno prijavo
@@ -91,6 +110,7 @@ form.addEventListener("submit", async (e) => {
       plan: radio("plan"),
       deadline: document.getElementById("oDeadline").value,
       notes: document.getElementById("oNotes").value.trim(),
+      lang: LANG,
       status: "Novo",
       createdAt: serverTimestamp(),
     });
@@ -104,7 +124,7 @@ form.addEventListener("submit", async (e) => {
   } catch (err) {
     btn.disabled = false;
     msg.className = "form-msg err";
-    msg.textContent = "Napaka pri pošiljanju. Poskusite znova ali nas pokličite.";
+    msg.textContent = T.error;
     console.error(err);
   }
 });
