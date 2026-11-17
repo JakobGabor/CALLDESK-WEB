@@ -24,6 +24,13 @@
         <button class="btn primary" id="addCompanyBtn">+ Dodaj podjetje</button>
       </div>
 
+      <!-- Zavihki po državah -->
+      <div class="country-tabs" id="countryTabs">
+        <button class="ctab on" data-country="SI">🇸🇮 Slovenija <span class="cnt" data-cnt="SI">0</span></button>
+        <button class="ctab" data-country="US">🇺🇸 ZDA <span class="cnt" data-cnt="US">0</span></button>
+        <button class="ctab" data-country="all">Vse države <span class="cnt" data-cnt="all">0</span></button>
+      </div>
+
       <div class="toolbar">
         <div class="search"><input type="text" id="companySearch" placeholder="Išči podjetje, dejavnost, kraj…" /></div>
         <select id="companyStatusFilter">
@@ -65,6 +72,12 @@
   <div class="modal-scrim" id="companyModal">
     <div class="modal">
       <h2 id="companyModalTitle">Dodaj podjetje</h2>
+      <div class="field"><label>Država</label>
+        <select id="cCountry">
+          <option value="SI">🇸🇮 Slovenija</option>
+          <option value="US">🇺🇸 ZDA</option>
+        </select>
+      </div>
       <div class="field"><label>Ime podjetja</label><input id="cName" placeholder="Podjetje d.o.o." /></div>
       <div class="field"><label>Kontaktna oseba <span class="hint">(ime in priimek)</span></label><input id="cPerson" placeholder="Janez Novak" /></div>
       <div class="field"><label>Vrsta dejavnosti</label><input id="cActivity" placeholder="Gostinstvo, IT, trgovina…" /></div>

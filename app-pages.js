@@ -23,6 +23,35 @@ export function initColdCalls() {
   const modal = bindModal("companyModal");
   let companies = [];
   let editingId = null;
+  let activeCountry = "SI";   // izbrani zavihek države
+
+  // Zapomni si zadnji izbrani zavihek
+  try { activeCountry = localStorage.getItem("calldesk-country") || "SI"; } catch { /* ignore */ }
+
+  /* ---- Zavihki po državah ---- */
+  const tabsEl = document.getElementById("countryTabs");
+  if (tabsEl) {
+    tabsEl.querySelectorAll(".ctab").forEach(b => {
+      b.classList.toggle("on", b.dataset.country === activeCountry);
+      b.addEventListener("click", () => {
+        activeCountry = b.dataset.country;
+        try { localStorage.setItem("calldesk-country", activeCountry); } catch { /* ignore */ }
+        tabsEl.querySelectorAll(".ctab").forEach(x => x.classList.toggle("on", x === b));
+        render();
+      });
+    });
+  }
+
+  // Podjetja brez vpisane države štejemo kot slovenska (stari vnosi)
+  const countryOf = (c) => c.country || "SI";
+
+  function updateCounts() {
+    const n = { SI: 0, US: 0, all: companies.length };
+    companies.forEach(c => { const k = countryOf(c); n[k] = (n[k] || 0) + 1; });
+    document.querySelectorAll("[data-cnt]").forEach(el => {
+      el.textContent = n[el.dataset.cnt] || 0;
+    });
+  }
 
   onSnapshot(collection(db, "companies"), (snap) => {
     companies = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -33,17 +62,21 @@ export function initColdCalls() {
   });
 
   function render() {
+    updateCounts();
     const q = (searchEl.value || "").toLowerCase().trim();
     const fs = filterEl.value;
     const list = companies.filter(c => {
       const hay = `${c.name} ${c.person} ${c.activity} ${c.contact} ${c.city} ${c.website} ${c.google}`.toLowerCase();
       const okQ = !q || hay.includes(q);
       const okS = !fs || (c.status || "Ni klicano") === fs;
-      return okQ && okS;
+      const okC = activeCountry === "all" || countryOf(c) === activeCountry;
+      return okQ && okS && okC;
     });
 
     if (!list.length) {
-      tbody.innerHTML = `<tr><td colspan="10"><div class="empty"><div class="big">📞</div>Ni podjetij. Dodaj prvo z gumbom zgoraj.</div></td></tr>`;
+      const kje = activeCountry === "US" ? " v ZDA"
+                : activeCountry === "SI" ? " v Sloveniji" : "";
+      tbody.innerHTML = `<tr><td colspan="10"><div class="empty"><div class="big">📞</div>Ni podjetij${kje}. Dodaj prvo z gumbom zgoraj.</div></td></tr>`;
       return;
     }
     tbody.innerHTML = list.map(c => `
@@ -77,8 +110,16 @@ export function initColdCalls() {
   // Polja okna
   const F = { name: "cName", person: "cPerson", activity: "cActivity", contact: "cContact",
               city: "cCity", website: "cWebsite", google: "cGoogle" };
-  const clearForm = () => Object.values(F).forEach(id => document.getElementById(id).value = "");
-  const fillForm = (c) => Object.entries(F).forEach(([k, id]) => document.getElementById(id).value = c[k] || "");
+  const countryEl = () => document.getElementById("cCountry");
+  // Ob praznem obrazcu predlagamo državo trenutnega zavihka
+  const clearForm = () => {
+    Object.values(F).forEach(id => document.getElementById(id).value = "");
+    if (countryEl()) countryEl().value = (activeCountry === "all" ? "SI" : activeCountry);
+  };
+  const fillForm = (c) => {
+    Object.entries(F).forEach(([k, id]) => document.getElementById(id).value = c[k] || "");
+    if (countryEl()) countryEl().value = countryOf(c);
+  };
 
   // Odpri okno za UREJANJE obstoječega podjetja
   function openEditCompany(id) {
@@ -164,7 +205,10 @@ export function initColdCalls() {
   function findDuplicates(name, contact) {
     const n = normName(name);
     const p = normPhone(contact);
+    // Dvojnike iščemo samo znotraj izbrane države
+    const drz = countryEl() ? countryEl().value : "SI";
     return companies.filter(c => {
+      if (countryOf(c) !== drz) return false;
       const cn = normName(c.name);
       if (n && cn && (cn === n || cn.includes(n) || n.includes(cn))) return true;
       if (p && normPhone(c.contact) === p) return true;
@@ -186,6 +230,7 @@ export function initColdCalls() {
       city: document.getElementById("cCity").value.trim(),
       website: document.getElementById("cWebsite").value.trim(),
       google: document.getElementById("cGoogle").value.trim(),
+      country: countryEl() ? countryEl().value : "SI",
     };
 
     // --- UREJANJE obstoječega podjetja ---

@@ -692,3 +692,35 @@ select option { background: var(--bg-2); color: var(--text); }
   .offer-wrap { padding: 24px 14px 60px; }
   .grid.cols-3 { grid-template-columns: 1fr; }
 }
+
+/* =========================================================================
+   ZAVIHKI PO DRŽAVAH (Cold Calli)
+   ========================================================================= */
+.country-tabs{
+  display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px;
+  border-bottom:1px solid var(--border); padding-bottom:14px;
+}
+.ctab{
+  display:inline-flex; align-items:center; gap:9px;
+  padding:10px 18px; border-radius:var(--radius-sm); cursor:pointer;
+  font-family:inherit; font-size:.92rem; font-weight:500;
+  background:transparent; color:var(--muted);
+  border:1px solid var(--border); transition:all .2s var(--ease);
+}
+.ctab:hover{ color:var(--text); border-color:var(--border-2); }
+.ctab.on{
+  color:var(--accent); background:var(--accent-soft);
+  border-color:rgba(61,139,255,.35);
+}
+.ctab .cnt{
+  display:inline-grid; place-items:center; min-width:24px; height:22px;
+  padding:0 7px; border-radius:999px; font-size:.76rem; font-weight:700;
+  background:rgba(255,255,255,.07); color:var(--muted);
+}
+.ctab.on .cnt{ background:rgba(61,139,255,.2); color:var(--accent); }
+[data-theme="light"] .ctab .cnt{ background:rgba(15,23,42,.06); }
+
+@media(max-width:640px){
+  .country-tabs{ gap:6px; }
+  .ctab{ padding:9px 13px; font-size:.86rem; }
+}
